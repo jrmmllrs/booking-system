@@ -1,27 +1,45 @@
 // src/App.jsx
-import React, { useState } from 'react';
-import BookingSystem from './pages/BookingSystem';
+import React, { useState, useEffect } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase';
+import { ADMIN_EMAILS } from './constants';
+import DentalClinicWebsite from './pages/BookingSystem';
 import AdminDashboard from './pages/AdminDashboard';
+import LoadingSpinner from './components/common/LoadingSpinner';
 
 function App() {
-  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [initializing, setInitializing] = useState(true);
 
-  return (
-    <div className="relative">
-      {/* Mode Toggle Button - Fixed at top right */}
-      <div className="fixed top-4 right-4 z-50">
-        <button
-          onClick={() => setIsAdminMode(!isAdminMode)}
-          className="bg-white shadow-lg rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors border border-gray-200"
-        >
-          Switch to {isAdminMode ? 'User' : 'Admin'} View
-        </button>
-      </div>
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      
+      // Check if user is admin
+      if (currentUser && ADMIN_EMAILS.includes(currentUser.email)) {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
+      
+      setInitializing(false);
+    });
 
-      {/* Render based on mode */}
-      {isAdminMode ? <AdminDashboard /> : <BookingSystem />}
-    </div>
-  );
+    return () => unsubscribe();
+  }, []);
+
+  if (initializing) {
+    return <LoadingSpinner />;
+  }
+
+  // Route to Admin Dashboard if user is logged in and is admin
+  if (user && isAdmin) {
+    return <AdminDashboard />;
+  }
+
+  // Otherwise show the regular booking system (landing page + user dashboard)
+  return <DentalClinicWebsite />;
 }
 
 export default App;
