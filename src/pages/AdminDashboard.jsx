@@ -23,6 +23,11 @@ import ErrorAlert from "../components/common/ErrorAlert";
 import LoginForm from "../components/login/LoginForm";
 import BookingCard from "../components/cards/BookingCard";
 import ContactCard from "../components/cards/ContactCard";
+import AnalyticsDashboard from "../components/dashboard/AnalyticsDashboard";
+import SearchFilter from "../components/dashboard/SearchFilter";
+import QuickActions from "../components/dashboard/QuickActions";
+import ActivityTimeline from "../components/dashboard/ActivityTimeline";
+import StatusOverview from "../components/dashboard/StatusOverview";
 
 const AdminDashboard = () => {
   // Auth State
@@ -34,13 +39,14 @@ const AdminDashboard = () => {
   // Bookings State
   const [bookings, setBookings] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Contacts State
   const [contacts, setContacts] = useState([]);
   const [contactFilter, setContactFilter] = useState("all");
 
   // UI State
-  const [activeTab, setActiveTab] = useState("bookings");
+  const [activeTab, setActiveTab] = useState("overview");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -223,6 +229,32 @@ const AdminDashboard = () => {
     }
   };
 
+  // Quick Actions Handlers
+  const handleExport = () => {
+    const csv =
+      "Name,Email,Phone,Service,Date,Time,Status,Notes\n" +
+      bookings
+        .map(
+          (b) =>
+            `"${b.name}","${b.email}","${b.phone || ""}","${b.service}","${
+              b.date
+            }","${b.time}","${b.status}","${b.notes || ""}"`
+        )
+        .join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `bookings-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleRefresh = async () => {
+    await loadAllBookings();
+    await loadAllContacts();
+  };
+
   // Stats Calculations
   const bookingStats = {
     total: bookings.length,
@@ -238,10 +270,14 @@ const AdminDashboard = () => {
   };
 
   // Filtered Data
-  const filteredBookings =
-    statusFilter === "all"
-      ? bookings
-      : bookings.filter((b) => b.status === statusFilter);
+  const filteredBookings = bookings
+    .filter((b) => statusFilter === "all" || b.status === statusFilter)
+    .filter(
+      (b) =>
+        b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        b.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        b.service.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   const filteredContacts =
     contactFilter === "all"
@@ -269,17 +305,17 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        <div className="bg-gradient-to-br from-white via-white to-indigo-50/30 rounded-3xl shadow-2xl p-8 mb-6 border border-gray-200/50">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <User className="w-6 h-6 text-purple-600" />
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <User className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-800">
+                <h2 className="text-2xl font-bold text-gray-900">
                   Admin Dashboard
                 </h2>
                 <p className="text-sm text-gray-600">{user.email}</p>
@@ -287,7 +323,7 @@ const AdminDashboard = () => {
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-5 py-3 text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all font-medium shadow-md"
             >
               <LogOut className="w-5 h-5" />
               <span>Logout</span>
@@ -298,211 +334,147 @@ const AdminDashboard = () => {
         <ErrorAlert message={error} />
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-2xl shadow-lg p-2 mb-6 flex gap-2">
-          <button
-            onClick={() => setActiveTab("bookings")}
-            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
-              activeTab === "bookings"
-                ? "bg-purple-600 text-white"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            <Calendar className="w-5 h-5 inline mr-2" />
-            Bookings
-          </button>
-          <button
-            onClick={() => setActiveTab("contacts")}
-            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors relative ${
-              activeTab === "contacts"
-                ? "bg-purple-600 text-white"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            <Mail className="w-5 h-5 inline mr-2" />
-            Contact Messages
-            {contactStats.unread > 0 && (
-              <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {contactStats.unread}
-              </span>
-            )}
-          </button>
+        <div className="bg-white rounded-2xl shadow-xl p-2 mb-6 flex gap-2 border border-gray-200/50">
+          {["overview", "bookings", "contacts"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
+                activeTab === tab
+                  ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === "contacts" && contactStats.unread > 0 && (
+                <span className="ml-2 bg-rose-500 text-white text-xs rounded-full w-5 h-5 inline-flex items-center justify-center">
+                  {contactStats.unread}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
+
+        {/* Overview Tab */}
+        {activeTab === "overview" && (
+          <div className="space-y-6">
+            <StatusOverview
+              bookingStats={bookingStats}
+              contactStats={contactStats}
+            />
+
+            <div className="grid lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <AnalyticsDashboard bookings={bookings} />
+              </div>
+              <div className="space-y-6">
+                <QuickActions
+                  onExport={handleExport}
+                  onRefresh={handleRefresh}
+                  bookingsCount={bookings.length}
+                  contactsCount={contacts.length}
+                />
+                <ActivityTimeline bookings={bookings} contacts={contacts} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Bookings Tab */}
         {activeTab === "bookings" && (
-          <>
-            {/* Booking Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <StatCard
-                value={bookingStats.total}
-                label="Total Bookings"
-                color="gray"
-              />
-              <StatCard
-                value={bookingStats.pending}
-                label="Pending"
-                color="yellow"
-              />
-              <StatCard
-                value={bookingStats.confirmed}
-                label="Confirmed"
-                color="green"
-              />
-              <StatCard
-                value={bookingStats.cancelled}
-                label="Cancelled"
-                color="red"
-              />
-            </div>
-
-            {/* Booking Filter */}
-            <FilterBar
-              value={statusFilter}
-              onChange={setStatusFilter}
-              options={[
-                { value: "all", label: "All Bookings" },
-                { value: "pending", label: "Pending" },
-                { value: "confirmed", label: "Confirmed" },
-                { value: "cancelled", label: "Cancelled" },
-              ]}
+          <div className="space-y-6">
+            <SearchFilter
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              placeholder="Search bookings by name, email, or service..."
             />
 
-            {/* Bookings List */}
-            <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-6">
-                All Bookings
-              </h3>
-
-              {loading && filteredBookings.length === 0 ? (
-                <LoadingState message="Loading bookings..." />
-              ) : filteredBookings.length === 0 ? (
-                <EmptyState icon={Calendar} message="No bookings found" />
-              ) : (
-                <div className="space-y-4">
-                  {filteredBookings.map((booking) => (
-                    <BookingCard
-                      key={booking.id}
-                      booking={booking}
-                      onCancel={(id) => updateBookingStatus(id, "cancelled")}
-                      onConfirm={(id) => updateBookingStatus(id, "confirmed")}
-                      onSetPending={(id) => updateBookingStatus(id, "pending")}
-                      onDelete={deleteBooking}
-                      loading={loading}
-                      isAdmin={true}
-                    />
-                  ))}
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-200/50">
+              <div className="flex items-center gap-4">
+                <div className="p-2.5 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl">
+                  <Filter className="w-5 h-5 text-indigo-600" />
                 </div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm font-medium"
+                >
+                  <option value="all">All Bookings</option>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {loading && filteredBookings.length === 0 ? (
+                <LoadingSpinner message="Loading bookings..." />
+              ) : filteredBookings.length === 0 ? (
+                <div className="bg-white rounded-3xl shadow-xl p-12 text-center border border-gray-200/50">
+                  <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 text-lg">No bookings found</p>
+                </div>
+              ) : (
+                filteredBookings.map((booking) => (
+                  <BookingCard
+                    key={booking.id}
+                    booking={booking}
+                    onCancel={(id) => updateBookingStatus(id, "cancelled")}
+                    onConfirm={(id) => updateBookingStatus(id, "confirmed")}
+                    onSetPending={(id) => updateBookingStatus(id, "pending")}
+                    onDelete={deleteBooking}
+                    loading={loading}
+                    isAdmin={true}
+                  />
+                ))
               )}
             </div>
-          </>
+          </div>
         )}
 
         {/* Contacts Tab */}
         {activeTab === "contacts" && (
-          <>
-            {/* Contact Stats */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <StatCard
-                value={contactStats.total}
-                label="Total Messages"
-                color="gray"
-              />
-              <StatCard
-                value={contactStats.unread}
-                label="Unread"
-                color="blue"
-              />
-              <StatCard value={contactStats.read} label="Read" color="green" />
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-200/50">
+              <div className="flex items-center gap-4">
+                <div className="p-2.5 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl">
+                  <Filter className="w-5 h-5 text-indigo-600" />
+                </div>
+                <select
+                  value={contactFilter}
+                  onChange={(e) => setContactFilter(e.target.value)}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm font-medium"
+                >
+                  <option value="all">All Messages</option>
+                  <option value="unread">Unread</option>
+                  <option value="read">Read</option>
+                </select>
+              </div>
             </div>
 
-            {/* Contact Filter */}
-            <FilterBar
-              value={contactFilter}
-              onChange={setContactFilter}
-              options={[
-                { value: "all", label: "All Messages" },
-                { value: "unread", label: "Unread" },
-                { value: "read", label: "Read" },
-              ]}
-            />
-
-            {/* Contacts List */}
-            <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-6">
-                Contact Messages
-              </h3>
-
+            <div className="space-y-4">
               {filteredContacts.length === 0 ? (
-                <EmptyState icon={Mail} message="No messages found" />
-              ) : (
-                <div className="space-y-4">
-                  {filteredContacts.map((contact) => (
-                    <ContactCard
-                      key={contact.id}
-                      contact={contact}
-                      onMarkAsRead={markContactAsRead}
-                      onDelete={deleteContact}
-                    />
-                  ))}
+                <div className="bg-white rounded-3xl shadow-xl p-12 text-center border border-gray-200/50">
+                  <Mail className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 text-lg">No messages found</p>
                 </div>
+              ) : (
+                filteredContacts.map((contact) => (
+                  <ContactCard
+                    key={contact.id}
+                    contact={contact}
+                    onMarkAsRead={markContactAsRead}
+                    onDelete={deleteContact}
+                  />
+                ))
               )}
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
   );
 };
-
-// Helper Components
-const StatCard = ({ value, label, color }) => {
-  const colorClasses = {
-    gray: "text-gray-800",
-    yellow: "text-yellow-600",
-    green: "text-green-600",
-    red: "text-red-600",
-    blue: "text-blue-600",
-  };
-
-  return (
-    <div className="bg-white rounded-xl shadow p-6">
-      <div className={`text-3xl font-bold ${colorClasses[color]}`}>{value}</div>
-      <div className="text-sm text-gray-600">{label}</div>
-    </div>
-  );
-};
-
-const FilterBar = ({ value, onChange, options }) => (
-  <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-    <div className="flex items-center space-x-4">
-      <Filter className="w-5 h-5 text-gray-600" />
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  </div>
-);
-
-const LoadingState = ({ message }) => (
-  <div className="text-center py-12">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-    <p className="mt-4 text-gray-600">{message}</p>
-  </div>
-);
-
-const EmptyState = ({ icon: Icon, message }) => (
-  <div className="text-center py-12">
-    <Icon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-    <p className="text-gray-500">{message}</p>
-  </div>
-);
 
 export default AdminDashboard;
