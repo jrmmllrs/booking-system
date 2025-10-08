@@ -1,30 +1,34 @@
 // src/pages/AdminDashboard.jsx
-import React, { useState, useEffect } from 'react';
-import { Calendar, User, LogOut, Filter } from 'lucide-react';
-import { auth, db } from '../firebase';
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { 
-  collection, 
-  getDocs, 
-  updateDoc, 
+import React, { useState, useEffect } from "react";
+import { Calendar, User, LogOut, Filter } from "lucide-react";
+import { auth, db } from "../firebase";
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+import {
+  collection,
+  getDocs,
+  updateDoc,
   deleteDoc,
   doc,
-  serverTimestamp 
-} from 'firebase/firestore';
-import { ADMIN_EMAILS } from '../constants';
-import LoadingSpinner from '../components/LoadingSpinner';
-import ErrorAlert from '../components/ErrorAlert';
-import LoginForm from '../components/LoginForm';
-import BookingCard from '../components/BookingCard';
+  serverTimestamp,
+} from "firebase/firestore";
+import { ADMIN_EMAILS } from "../constants";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import ErrorAlert from "../components/common/ErrorAlert";
+import LoginForm from "../components/login/LoginForm";
+import BookingCard from "../components/admin/BookingCard";
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [filteredBookings, setFilteredBookings] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [error, setError] = useState('');
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [initializing, setInitializing] = useState(true);
 
@@ -33,7 +37,7 @@ const AdminDashboard = () => {
       if (user && ADMIN_EMAILS.includes(user.email)) {
         setUser(user);
       } else if (user && !ADMIN_EMAILS.includes(user.email)) {
-        setError('Access denied. Admin privileges required.');
+        setError("Access denied. Admin privileges required.");
         signOut(auth);
         setUser(null);
       } else {
@@ -53,32 +57,32 @@ const AdminDashboard = () => {
   }, [user]);
 
   useEffect(() => {
-    if (statusFilter === 'all') {
+    if (statusFilter === "all") {
       setFilteredBookings(bookings);
     } else {
-      setFilteredBookings(bookings.filter(b => b.status === statusFilter));
+      setFilteredBookings(bookings.filter((b) => b.status === statusFilter));
     }
   }, [statusFilter, bookings]);
 
   const loadAllBookings = async () => {
     setLoading(true);
     try {
-      const snapshot = await getDocs(collection(db, 'bookings'));
-      
+      const snapshot = await getDocs(collection(db, "bookings"));
+
       const bookingsList = [];
       snapshot.forEach((doc) => {
         bookingsList.push({ id: doc.id, ...doc.data() });
       });
-      
+
       bookingsList.sort((a, b) => {
         if (!a.createdAt || !b.createdAt) return 0;
         return b.createdAt.seconds - a.createdAt.seconds;
       });
-      
+
       setBookings(bookingsList);
     } catch (err) {
-      console.error('Error loading bookings:', err);
-      setError('Failed to load bookings');
+      console.error("Error loading bookings:", err);
+      setError("Failed to load bookings");
     } finally {
       setLoading(false);
     }
@@ -86,30 +90,37 @@ const AdminDashboard = () => {
 
   const handleLogin = async () => {
     if (!loginEmail || !loginPassword) {
-      setError('Please enter email and password');
+      setError("Please enter email and password");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const result = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
-      
+      const result = await signInWithEmailAndPassword(
+        auth,
+        loginEmail,
+        loginPassword
+      );
+
       if (!ADMIN_EMAILS.includes(result.user.email)) {
-        setError('Access denied. Admin privileges required.');
+        setError("Access denied. Admin privileges required.");
         await signOut(auth);
         return;
       }
-      
-      setLoginEmail('');
-      setLoginPassword('');
+
+      setLoginEmail("");
+      setLoginPassword("");
     } catch (err) {
-      console.error('Login error:', err);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-        setError('Invalid email or password');
-      } else if (err.code === 'auth/invalid-email') {
-        setError('Invalid email format');
+      console.error("Login error:", err);
+      if (
+        err.code === "auth/user-not-found" ||
+        err.code === "auth/wrong-password"
+      ) {
+        setError("Invalid email or password");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Invalid email format");
       } else {
         setError(err.message);
       }
@@ -122,43 +133,43 @@ const AdminDashboard = () => {
     try {
       await signOut(auth);
     } catch (err) {
-      console.error('Logout error:', err);
-      setError('Failed to logout');
+      console.error("Logout error:", err);
+      setError("Failed to logout");
     }
   };
 
   const updateBookingStatus = async (id, newStatus) => {
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      await updateDoc(doc(db, 'bookings', id), {
+      await updateDoc(doc(db, "bookings", id), {
         status: newStatus,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
       await loadAllBookings();
     } catch (err) {
-      console.error('Error updating booking:', err);
-      setError('Failed to update booking status');
+      console.error("Error updating booking:", err);
+      setError("Failed to update booking status");
     } finally {
       setLoading(false);
     }
   };
 
   const deleteBooking = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this booking?')) {
+    if (!window.confirm("Are you sure you want to delete this booking?")) {
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      await deleteDoc(doc(db, 'bookings', id));
+      await deleteDoc(doc(db, "bookings", id));
       await loadAllBookings();
     } catch (err) {
-      console.error('Error deleting booking:', err);
-      setError('Failed to delete booking');
+      console.error("Error deleting booking:", err);
+      setError("Failed to delete booking");
     } finally {
       setLoading(false);
     }
@@ -167,9 +178,9 @@ const AdminDashboard = () => {
   const getStatusStats = () => {
     return {
       total: bookings.length,
-      pending: bookings.filter(b => b.status === 'pending').length,
-      confirmed: bookings.filter(b => b.status === 'confirmed').length,
-      cancelled: bookings.filter(b => b.status === 'cancelled').length
+      pending: bookings.filter((b) => b.status === "pending").length,
+      confirmed: bookings.filter((b) => b.status === "confirmed").length,
+      cancelled: bookings.filter((b) => b.status === "cancelled").length,
     };
   };
 
@@ -204,7 +215,9 @@ const AdminDashboard = () => {
                 <User className="w-6 h-6 text-purple-600" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-800">Admin Dashboard</h2>
+                <h2 className="text-xl font-bold text-gray-800">
+                  Admin Dashboard
+                </h2>
                 <p className="text-sm text-gray-600">{user.email}</p>
               </div>
             </div>
@@ -222,19 +235,27 @@ const AdminDashboard = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-xl shadow p-6">
-            <div className="text-3xl font-bold text-gray-800">{stats.total}</div>
+            <div className="text-3xl font-bold text-gray-800">
+              {stats.total}
+            </div>
             <div className="text-sm text-gray-600">Total Bookings</div>
           </div>
           <div className="bg-white rounded-xl shadow p-6">
-            <div className="text-3xl font-bold text-yellow-600">{stats.pending}</div>
+            <div className="text-3xl font-bold text-yellow-600">
+              {stats.pending}
+            </div>
             <div className="text-sm text-gray-600">Pending</div>
           </div>
           <div className="bg-white rounded-xl shadow p-6">
-            <div className="text-3xl font-bold text-green-600">{stats.confirmed}</div>
+            <div className="text-3xl font-bold text-green-600">
+              {stats.confirmed}
+            </div>
             <div className="text-sm text-gray-600">Confirmed</div>
           </div>
           <div className="bg-white rounded-xl shadow p-6">
-            <div className="text-3xl font-bold text-red-600">{stats.cancelled}</div>
+            <div className="text-3xl font-bold text-red-600">
+              {stats.cancelled}
+            </div>
             <div className="text-sm text-gray-600">Cancelled</div>
           </div>
         </div>
@@ -256,8 +277,10 @@ const AdminDashboard = () => {
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">All Bookings</h3>
-          
+          <h3 className="text-2xl font-bold text-gray-800 mb-6">
+            All Bookings
+          </h3>
+
           {loading && filteredBookings.length === 0 ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
@@ -274,9 +297,9 @@ const AdminDashboard = () => {
                 <BookingCard
                   key={booking.id}
                   booking={booking}
-                  onCancel={(id) => updateBookingStatus(id, 'cancelled')}
-                  onConfirm={(id) => updateBookingStatus(id, 'confirmed')}
-                  onSetPending={(id) => updateBookingStatus(id, 'pending')}
+                  onCancel={(id) => updateBookingStatus(id, "cancelled")}
+                  onConfirm={(id) => updateBookingStatus(id, "confirmed")}
+                  onSetPending={(id) => updateBookingStatus(id, "pending")}
                   onDelete={deleteBooking}
                   loading={loading}
                   isAdmin={true}
