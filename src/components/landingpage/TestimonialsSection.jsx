@@ -31,7 +31,7 @@ export default function TestimonialsSection({
         </div>
 
         <div className="bg-gray-50 rounded-3xl p-8 md:p-12 relative">
-          <Quote className="w-12 h-12 text-blue-200 absolute top-8 left-8" />
+          <Quote className="w-12 h-12 text-[#0056A3]/20 absolute top-8 left-8" />
 
           <div className="relative z-10">
             <div className="flex mb-4">
@@ -50,7 +50,7 @@ export default function TestimonialsSection({
             </p>
 
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+              <div className="w-12 h-12 bg-[#0056A3] rounded-full flex items-center justify-center text-white font-semibold">
                 {testimonials[currentTestimonial].initials}
               </div>
               <div>
@@ -71,7 +71,7 @@ export default function TestimonialsSection({
                 key={idx}
                 onClick={() => setCurrentTestimonial(idx)}
                 className={`w-2 h-2 rounded-full transition ${
-                  idx === currentTestimonial ? "bg-blue-600 w-8" : "bg-gray-300"
+                  idx === currentTestimonial ? "bg-[#0056A3] w-8" : "bg-gray-300"
                 }`}
               />
             ))}

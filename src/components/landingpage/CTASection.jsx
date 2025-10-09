@@ -11,7 +11,7 @@ export default function CTASection({
 }) {
   if (variant === "gradient") {
     return (
-      <section className="py-24 px-6 bg-gradient-to-br from-blue-600 to-blue-700 text-gray-900 ">
+      <section className="py-24 px-6 bg-gradient-to-br from-[#0056A3] to-[#004080] text-gray-900">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
@@ -23,7 +23,7 @@ export default function CTASection({
               </p>
               <button
                 onClick={onButtonClick}
-                className="bg-white text-blue-600 px-8 py-3.5 rounded-full hover:bg-gray-100 transition font-medium"
+                className="bg-white text-[#0056A3] px-8 py-3.5 rounded-full hover:bg-gray-100 transition font-medium"
               >
                 {buttonText}
               </button>
@@ -33,7 +33,7 @@ export default function CTASection({
               {benefits.map((benefit, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-3 bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-4"
+                  className="flex items-center gap-3 bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-4 text-[#0056A3]"
                 >
                   <Check className="w-6 h-6 flex-shrink-0" />
                   <span className="text-lg">{benefit}</span>
@@ -53,7 +53,7 @@ export default function CTASection({
         <p className="text-xl text-gray-600 mb-12">{subtitle}</p>
         <button
           onClick={onButtonClick}
-          className="bg-blue-600 text-white px-10 py-4 rounded-full hover:bg-blue-700 transition font-medium text-lg"
+          className="bg-[#0056A3] text-white px-10 py-4 rounded-full hover:bg-[#004080] transition font-medium text-lg"
         >
           {buttonText}
         </button>

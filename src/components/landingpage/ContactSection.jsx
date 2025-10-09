@@ -81,8 +81,8 @@ export default function ContactSection({
           {/* Contact Info Cards */}
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
-                <MapPin className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-[#0056A3]/10 rounded-xl flex items-center justify-center mb-4">
+                <MapPin className="w-6 h-6 text-[#0056A3]" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2 text-lg">
                 Visit Us
@@ -91,8 +91,8 @@ export default function ContactSection({
             </div>
 
             <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
-                <Clock className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-[#009846]/10 rounded-xl flex items-center justify-center mb-4">
+                <Clock className="w-6 h-6 text-[#009846]" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2 text-lg">
                 Business Hours
@@ -107,8 +107,8 @@ export default function ContactSection({
             </div>
 
             <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
-                <Phone className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-[#0056A3]/10 rounded-xl flex items-center justify-center mb-4">
+                <Phone className="w-6 h-6 text-[#0056A3]" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2 text-lg">
                 Call Us
@@ -160,7 +160,7 @@ export default function ContactSection({
                       setFormData({ ...formData, name: e.target.value })
                     }
                     disabled={loading}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition text-gray-900 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0056A3] focus:border-[#0056A3] focus:bg-white transition text-gray-900 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -176,7 +176,7 @@ export default function ContactSection({
                       setFormData({ ...formData, email: e.target.value })
                     }
                     disabled={loading}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition text-gray-900 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0056A3] focus:border-[#0056A3] focus:bg-white transition text-gray-900 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -192,14 +192,15 @@ export default function ContactSection({
                       setFormData({ ...formData, message: e.target.value })
                     }
                     disabled={loading}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition text-gray-900 placeholder-gray-400 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0056A3] focus:border-[#0056A3] focus:bg-white transition text-gray-900 placeholder-gray-400 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                   ></textarea>
                 </div>
 
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                  className="w-full text-white py-4 rounded-xl transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:bg-[#004080]"
+                  style={{ backgroundColor: '#0056A3' }}
                 >
                   {loading ? (
                     <>

@@ -1,7 +1,7 @@
 import React from "react";
 
 export default function Footer({
-  clinicName = "Bright Smile",
+  clinicName = "Diego Dental CLinic",
   tagline = "Your trusted partner for comprehensive dental care",
   quickLinks = [
     { label: "Services", href: "#services" },

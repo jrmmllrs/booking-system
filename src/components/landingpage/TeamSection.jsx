@@ -29,7 +29,7 @@ export default function TeamSection({
                 {member.name}
               </h3>
               <p className="text-sm text-gray-600 mb-1">{member.role}</p>
-              <p className="text-xs text-blue-600">{member.specialty}</p>
+              <p className="text-xs text-[#0056A3]">{member.specialty}</p>
             </div>
           ))}
         </div>

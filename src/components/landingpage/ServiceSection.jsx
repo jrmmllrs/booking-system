@@ -28,8 +28,8 @@ export default function ServicesSection({
                 className="bg-white rounded-2xl p-8 hover:shadow-lg transition cursor-pointer group"
               >
                 <div className="flex items-start justify-between mb-6">
-                  <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition">
-                    <Icon className="w-6 h-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-[#0056A3]/10 rounded-xl flex items-center justify-center group-hover:bg-[#0056A3]/20 transition">
+                    <Icon className="w-6 h-6 text-[#0056A3]" />
                   </div>
                   {service.price && (
                     <div className="text-2xl font-bold text-gray-900">
@@ -45,7 +45,7 @@ export default function ServicesSection({
                 </p>
                 <button
                   onClick={onBookClick}
-                  className="text-blue-600 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all"
+                  className="text-[#0056A3] text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all"
                 >
                   Book Now <ChevronRight className="w-4 h-4" />
                 </button>
