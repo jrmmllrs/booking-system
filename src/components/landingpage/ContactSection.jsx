@@ -1,6 +1,5 @@
-// src/components/ContactSection.jsx
 import React, { useState } from "react";
-import { MapPin, Clock, CheckCircle } from "lucide-react";
+import { MapPin, Clock, CheckCircle, Mail, Phone } from "lucide-react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 // ⚠️ IMPORTANT: Update this import path to match your firebase config location
@@ -12,6 +11,9 @@ export default function ContactSection({
   subtitle = "Have questions? We're here to help. Contact us or visit our clinic.",
   address = "123 Dental Street, Healthcare City",
   hours = ["Mon-Fri: 9AM - 6PM", "Sat: 9AM - 2PM"],
+  phone = "+1 (555) 123-4567",
+  email = "info@dentalclinic.com",
+  mapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.8354345093747!2d144.9537353153167!3d-37.81720997975171!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad65d4c2b349649%3A0xb6899234e561db11!2sEnvato!5e0!3m2!1sen!2sau!4v1635407360837!5m2!1sen!2sau",
 }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -64,29 +66,38 @@ export default function ContactSection({
   };
 
   return (
-    <section id="contact" className="py-24 px-6 bg-white">
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16">
-        <div>
-          <h2 className="text-4xl font-semibold text-gray-900 mb-6">{title}</h2>
-          <p className="text-gray-600 mb-12 leading-relaxed">{subtitle}</p>
+    <section
+      id="contact"
+      className="py-24 px-6 bg-gradient-to-b from-white to-gray-50"
+    >
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <h2 className="text-5xl font-bold text-gray-900 mb-4">{title}</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">{subtitle}</p>
+        </div>
 
-          <div className="space-y-8">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <MapPin className="w-5 h-5 text-gray-700" />
+        <div className="grid lg:grid-cols-3 gap-8 mb-12">
+          {/* Contact Info Cards */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                <MapPin className="w-6 h-6 text-blue-600" />
               </div>
-              <div>
-                <p className="font-medium text-gray-900 mb-1">Address</p>
-                <p className="text-gray-600 text-sm">{address}</p>
-              </div>
+              <h3 className="font-semibold text-gray-900 mb-2 text-lg">
+                Visit Us
+              </h3>
+              <p className="text-gray-600 text-sm leading-relaxed">{address}</p>
             </div>
 
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Clock className="w-5 h-5 text-gray-700" />
+            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                <Clock className="w-6 h-6 text-green-600" />
               </div>
-              <div>
-                <p className="font-medium text-gray-900 mb-1">Hours</p>
+              <h3 className="font-semibold text-gray-900 mb-2 text-lg">
+                Business Hours
+              </h3>
+              <div className="space-y-1">
                 {hours.map((hour, idx) => (
                   <p key={idx} className="text-gray-600 text-sm">
                     {hour}
@@ -94,75 +105,129 @@ export default function ContactSection({
                 ))}
               </div>
             </div>
+
+            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                <Phone className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2 text-lg">
+                Call Us
+              </h3>
+              <p className="text-gray-600 text-sm mb-3">{phone}</p>
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-gray-400" />
+                <p className="text-gray-600 text-sm">{email}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Form */}
+          <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div className="p-8">
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">
+                Send Us a Message
+              </h3>
+              <p className="text-gray-600 mb-8">
+                Fill out the form below and we'll get back to you as soon as
+                possible.
+              </p>
+
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
+
+              {success && (
+                <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg flex items-center gap-3 text-green-700 text-sm">
+                  <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                  <span>
+                    Message sent successfully! We'll get back to you soon.
+                  </span>
+                </div>
+              )}
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="John Doe"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    disabled={loading}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition text-gray-900 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="john@example.com"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    disabled={loading}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition text-gray-900 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Message
+                  </label>
+                  <textarea
+                    placeholder="Tell us how we can help you..."
+                    rows="5"
+                    value={formData.message}
+                    onChange={(e) =>
+                      setFormData({ ...formData, message: e.target.value })
+                    }
+                    disabled={loading}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition text-gray-900 placeholder-gray-400 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  ></textarea>
+                </div>
+
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    "Send Message"
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="bg-gray-50 rounded-3xl p-8">
-          <h3 className="text-2xl font-semibold text-gray-900 mb-8">
-            Quick Contact
-          </h3>
-
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-2 text-green-700 text-sm">
-              <CheckCircle className="w-5 h-5" />
-              <span>
-                Message sent successfully! We'll get back to you soon.
-              </span>
-            </div>
-          )}
-
-          <div className="space-y-5">
-            <input
-              type="text"
-              placeholder="Your Name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              disabled={loading}
-              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-            <input
-              type="email"
-              placeholder="Your Email"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              disabled={loading}
-              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-            <textarea
-              placeholder="Your Message"
-              rows="4"
-              value={formData.message}
-              onChange={(e) =>
-                setFormData({ ...formData, message: e.target.value })
-              }
-              disabled={loading}
-              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 placeholder-gray-400 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
-            ></textarea>
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  <span>Sending...</span>
-                </>
-              ) : (
-                "Send Message"
-              )}
-            </button>
-          </div>
+        {/* Embedded Map */}
+        <div className="w-full rounded-2xl overflow-hidden shadow-xl border border-gray-200">
+          <iframe
+            src={mapUrl}
+            width="100%"
+            height="450"
+            style={{ border: 0 }}
+            allowFullScreen=""
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Location Map"
+            className="w-full"
+          ></iframe>
         </div>
       </div>
     </section>

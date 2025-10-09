@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
 
 export default function Navbar({
-  brandName = "Bright Smile",
+  brandName = "Diego Dental Clinic",
   menuItems = [
     { label: "Services", href: "#services" },
     { label: "Our Team", href: "#team" },

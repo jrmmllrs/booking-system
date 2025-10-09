@@ -374,21 +374,26 @@ const DentalClinicWebsite = () => {
 
   // Dashboard - Show when logged in
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 p-4">
       <div className="max-w-6xl mx-auto">
-        <DashboardHeader user={user} onLogout={handleLogout} />
+        {/* Hide header when adding new booking */}
+        {!showBookingForm && (
+          <DashboardHeader user={user} onLogout={handleLogout} />
+        )}
 
         <ErrorAlert message={error} />
 
+        {/* Only show "+ New Booking" button if not in form view */}
         {!showBookingForm && (
           <button
             onClick={() => setShowBookingForm(true)}
-            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-4 rounded-2xl font-semibold hover:shadow-lg transition-all mb-6"
+            className="w-full py-3 text-xs text-blue-600 font-light tracking-widest uppercase border-2 border-blue-500 rounded-xl hover:bg-blue-500 hover:text-white transition-all duration-300 mb-12 max-w-4xl mx-auto block shadow-sm hover:shadow-lg"
           >
             + New Booking
           </button>
         )}
 
+        {/* Toggle between form and list */}
         {showBookingForm ? (
           <BookingForm
             formData={formData}

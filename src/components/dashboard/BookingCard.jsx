@@ -1,76 +1,103 @@
 import React from "react";
-import { Phone, Calendar, Clock } from "lucide-react";
+import { Phone, Calendar, Clock, Briefcase, Mail } from "lucide-react";
 
 const BookingCard = ({ booking, onCancel, loading }) => {
-  const getStatusColor = (status) => {
+  const getStatusStyle = (status) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "text-blue-600 bg-blue-50";
       case "confirmed":
-        return "bg-green-100 text-green-800";
+        return "text-blue-600 bg-blue-50";
       case "cancelled":
-        return "bg-red-100 text-red-800";
+        return "text-gray-400 bg-gray-50";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "text-gray-400 bg-gray-50";
     }
   };
 
   return (
-    <div className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h4 className="text-lg font-semibold text-gray-800 mb-1">
-            {booking.name}
-          </h4>
-          <p className="text-sm text-gray-600">{booking.email}</p>
-        </div>
-        <span
-          className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-            booking.status
-          )}`}
-        >
-          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-        </span>
+    <div className="group relative bg-gradient-to-br from-gray-50 to-white rounded-2xl overflow-hidden w-full">
+      {/* Elegant border effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-100 via-gray-100 to-white p-px rounded-2xl">
+        <div className="h-full w-full bg-white rounded-2xl"></div>
       </div>
+      
+      <div className="relative p-6">
+        {/* Header with status badge */}
+        <div className="flex items-start justify-between mb-5">
+          <div className="flex-1">
+            <h4 className="text-lg font-light text-gray-900 mb-1 tracking-tight">
+              {booking.name}
+            </h4>
+            <div className="flex items-center gap-2 text-gray-400 text-xs font-light">
+              <Mail className="w-3 h-3" />
+              <span>{booking.email}</span>
+            </div>
+          </div>
+          <div className={`text-xs font-medium tracking-widest uppercase px-3 py-1.5 rounded-lg ${getStatusStyle(booking.status)}`}>
+            {booking.status}
+          </div>
+        </div>
 
-      <div className="grid md:grid-cols-2 gap-4 mb-4">
-        <div className="flex items-center space-x-2 text-gray-600">
-          <Phone className="w-4 h-4" />
-          <span className="text-sm">{booking.phone}</span>
+        {/* Compact 2-column grid */}
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="col-span-2 flex items-center gap-3 py-2 border-b border-gray-100">
+            <Phone className="w-3.5 h-3.5 text-blue-400" />
+            <div className="flex-1">
+              <p className="text-xs uppercase tracking-widest text-gray-400 font-light">Phone</p>
+              <p className="text-xs text-gray-900 font-light mt-0.5">{booking.phone}</p>
+            </div>
+          </div>
+
+          <div className="col-span-2 flex items-center gap-3 py-2 border-b border-gray-100">
+            <Briefcase className="w-3.5 h-3.5 text-blue-400" />
+            <div className="flex-1">
+              <p className="text-xs uppercase tracking-widest text-gray-400 font-light">Service</p>
+              <p className="text-xs text-gray-900 font-light mt-0.5 capitalize">{booking.service}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 py-2 border-b border-gray-100">
+            <Calendar className="w-3.5 h-3.5 text-blue-400" />
+            <div className="flex-1">
+              <p className="text-xs uppercase tracking-widest text-gray-400 font-light">Date</p>
+              <p className="text-xs text-gray-900 font-light mt-0.5">{booking.date}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 py-2 border-b border-gray-100">
+            <Clock className="w-3.5 h-3.5 text-blue-400" />
+            <div className="flex-1">
+              <p className="text-xs uppercase tracking-widest text-gray-400 font-light">Time</p>
+              <p className="text-xs text-gray-900 font-light mt-0.5">{booking.time}</p>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center space-x-2 text-gray-600">
-          <Calendar className="w-4 h-4" />
-          <span className="text-sm capitalize">{booking.service}</span>
-        </div>
-        <div className="flex items-center space-x-2 text-gray-600">
-          <Calendar className="w-4 h-4" />
-          <span className="text-sm">{booking.date}</span>
-        </div>
-        <div className="flex items-center space-x-2 text-gray-600">
-          <Clock className="w-4 h-4" />
-          <span className="text-sm">{booking.time}</span>
-        </div>
+
+        {/* Notes section - compact */}
+        {booking.notes && (
+          <div className="mb-5 p-3 bg-blue-50 rounded-xl border border-blue-100">
+            <p className="text-xs uppercase tracking-widest text-blue-600 font-light mb-1.5">Notes</p>
+            <p className="text-xs text-gray-600 leading-relaxed font-light">
+              {booking.notes}
+            </p>
+          </div>
+        )}
+
+        {/* Refined action button */}
+        {booking.status === "pending" && (
+          <button
+            onClick={() => onCancel(booking.id)}
+            disabled={loading}
+            className="w-full py-2.5 text-xs text-gray-900 font-light tracking-widest uppercase border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            {loading ? "Processing..." : "Cancel Appointment"}
+          </button>
+        )}
       </div>
-
-      {booking.notes && (
-        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-600">
-            <span className="font-medium">Notes:</span> {booking.notes}
-          </p>
-        </div>
-      )}
-
-      {booking.status === "pending" && (
-        <button
-          onClick={() => onCancel(booking.id)}
-          disabled={loading}
-          className="text-red-600 hover:text-red-700 font-medium text-sm disabled:opacity-50"
-        >
-          Cancel Booking
-        </button>
-      )}
     </div>
   );
 };
 
 export default BookingCard;
+
