@@ -23,17 +23,17 @@ export default function Footer({
   year = new Date().getFullYear(),
 }) {
   return (
-    <footer className="bg-gray-900 text-white py-12 px-6">
+    <footer className="bg-[#0056A3] text-white py-12 px-6">
       <div className="max-w-6xl mx-auto">
         <div className="grid md:grid-cols-4 gap-12 mb-12">
           <div>
             <div className="text-lg font-semibold mb-4">{clinicName}</div>
-            <p className="text-sm text-gray-400 leading-relaxed">{tagline}</p>
+            <p className="text-sm text-white leading-relaxed">{tagline}</p>
           </div>
 
           <div>
             <h4 className="font-medium mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <ul className="space-y-2 text-sm text-white">
               {quickLinks.map((link, idx) => (
                 <li key={idx}>
                   <a href={link.href} className="hover:text-white transition">
@@ -46,7 +46,7 @@ export default function Footer({
 
           <div>
             <h4 className="font-medium mb-4">Services</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <ul className="space-y-2 text-sm text-white">
               {services.map((service, idx) => (
                 <li key={idx}>{service}</li>
               ))}
@@ -55,7 +55,7 @@ export default function Footer({
 
           <div>
             <h4 className="font-medium mb-4">Contact</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <ul className="space-y-2 text-sm text-white">
               {contactInfo.map((info, idx) => (
                 <li key={idx}>{info}</li>
               ))}
@@ -63,8 +63,8 @@ export default function Footer({
           </div>
         </div>
 
-        <div className="border-t border-gray-800 pt-8 text-center">
-          <p className="text-sm text-gray-400">
+        <div className="border-t border-white pt-8 text-center">
+          <p className="text-sm text-white">
             &copy; {year} {clinicName}. All rights reserved.
           </p>
         </div>

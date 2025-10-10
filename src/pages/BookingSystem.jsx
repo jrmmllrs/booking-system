@@ -42,10 +42,7 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 // Import data from dentalData.js
 import {
   dentalServices,
-  features,
-  stats,
   ctaBenefits,
-  contactInfo,
   teamMembers,
   galleryImages,
   testimonials,
@@ -300,12 +297,6 @@ const DentalClinicWebsite = () => {
           onSecondaryClick={() => setShowLoginModal(true)}
         />
 
-        <AboutSection
-          title="Why Choose Us"
-          subtitle="Everything you need for a perfect smile"
-          features={features}
-        />
-
         <ServicesSection
           services={dentalServices}
           onBookClick={() => setShowBookingModal(true)}
@@ -387,9 +378,20 @@ const DentalClinicWebsite = () => {
         {!showBookingForm && (
           <button
             onClick={() => setShowBookingForm(true)}
-            className="w-full py-3 text-xs text-blue-600 font-light tracking-widest uppercase border-2 border-blue-500 rounded-xl hover:bg-blue-500 hover:text-white transition-all duration-300 mb-12 max-w-4xl mx-auto block shadow-sm hover:shadow-lg"
+            className="group relative w-full max-w-4xl mx-auto block py-3.5 text-sm font-semibold tracking-widest uppercase rounded-xl overflow-hidden transition-all duration-300 mb-12"
           >
-            + New Booking
+            {/* Elegant border effect */}
+            <span className="absolute inset-0 bg-gradient-to-br from-[#0056A3]/10 via-[#009846]/10 to-white p-px rounded-xl">
+              <span className="block h-full w-full bg-white rounded-xl group-hover:bg-gradient-to-br group-hover:from-[#0056A3]/5 group-hover:to-[#009846]/5 transition-all duration-300"></span>
+            </span>
+
+            {/* Button text */}
+            <span className="relative z-10 text-[#0056A3] group-hover:text-white transition-all duration-300">
+              + New Booking
+            </span>
+
+            {/* Hover fill animation */}
+            <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#0056A3] to-[#009846] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
           </button>
         )}
 

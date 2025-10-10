@@ -69,7 +69,7 @@ export default function BookingModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
         <div className="p-8">
           <div className="flex items-center justify-between mb-8">
@@ -180,7 +180,7 @@ export default function BookingModal({
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#0056A3] text-white py-3.5 rounded-xl font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Submitting..." : "Confirm Appointment"}
             </button>

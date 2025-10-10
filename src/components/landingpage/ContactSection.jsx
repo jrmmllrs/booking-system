@@ -13,7 +13,7 @@ export default function ContactSection({
   hours = ["Mon-Fri: 9AM - 6PM", "Sat: 9AM - 2PM"],
   phone = "+1 (555) 123-4567",
   email = "info@dentalclinic.com",
-  mapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.8354345093747!2d144.9537353153167!3d-37.81720997975171!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad65d4c2b349649%3A0xb6899234e561db11!2sEnvato!5e0!3m2!1sen!2sau!4v1635407360837!5m2!1sen!2sau",
+  mapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3837.1751454539867!2d120.58585537513238!3d15.89989258475539!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x339139e8a627e6bf%3A0xb7b70240119d6db!2sDiego%20Dental%20Clinic!5e0!3m2!1sen!2sph!4v1760098011564!5m2!1sen!2sph",
 }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -200,7 +200,7 @@ export default function ContactSection({
                   onClick={handleSubmit}
                   disabled={loading}
                   className="w-full text-white py-4 rounded-xl transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:bg-[#004080]"
-                  style={{ backgroundColor: '#0056A3' }}
+                  style={{ backgroundColor: "#0056A3" }}
                 >
                   {loading ? (
                     <>
