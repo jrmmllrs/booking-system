@@ -1,9 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { MapPin, Clock, CheckCircle, Mail, Phone } from "lucide-react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-
-// ⚠️ IMPORTANT: Update this import path to match your firebase config location
-// Common paths: "../firebase" or "../firebase/config" or "../config/firebase"
 import { db } from "../../firebase";
 
 export default function ContactSection({
@@ -23,6 +20,29 @@ export default function ContactSection({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,11 +88,16 @@ export default function ContactSection({
   return (
     <section
       id="contact"
-      className="py-24 px-6 bg-gradient-to-b from-white to-gray-50"
+      ref={sectionRef}
+      className="py-24 px-6 bg-gradient-to-b from-white to-gray-50 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div
+          className={`text-center mb-16 transition-all duration-700 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-8"
+          }`}
+        >
           <h2 className="text-5xl font-bold text-gray-900 mb-4">{title}</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">{subtitle}</p>
         </div>
@@ -80,8 +105,16 @@ export default function ContactSection({
         <div className="grid lg:grid-cols-3 gap-8 mb-12">
           {/* Contact Info Cards */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
-              <div className="w-12 h-12 bg-[#0056A3]/10 rounded-xl flex items-center justify-center mb-4">
+            {/* Visit Us Card */}
+            <div
+              className={`bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 border border-gray-100 hover:scale-105 ${
+                isVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-8"
+              }`}
+              style={{ transitionDelay: "200ms" }}
+            >
+              <div className="w-12 h-12 bg-[#0056A3]/10 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
                 <MapPin className="w-6 h-6 text-[#0056A3]" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2 text-lg">
@@ -90,8 +123,16 @@ export default function ContactSection({
               <p className="text-gray-600 text-sm leading-relaxed">{address}</p>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
-              <div className="w-12 h-12 bg-[#009846]/10 rounded-xl flex items-center justify-center mb-4">
+            {/* Business Hours Card */}
+            <div
+              className={`bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 border border-gray-100 hover:scale-105 ${
+                isVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-8"
+              }`}
+              style={{ transitionDelay: "300ms" }}
+            >
+              <div className="w-12 h-12 bg-[#009846]/10 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
                 <Clock className="w-6 h-6 text-[#009846]" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2 text-lg">
@@ -106,8 +147,16 @@ export default function ContactSection({
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
-              <div className="w-12 h-12 bg-[#0056A3]/10 rounded-xl flex items-center justify-center mb-4">
+            {/* Call Us Card */}
+            <div
+              className={`bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 border border-gray-100 hover:scale-105 ${
+                isVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-8"
+              }`}
+              style={{ transitionDelay: "400ms" }}
+            >
+              <div className="w-12 h-12 bg-[#0056A3]/10 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
                 <Phone className="w-6 h-6 text-[#0056A3]" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2 text-lg">
@@ -122,7 +171,14 @@ export default function ContactSection({
           </div>
 
           {/* Contact Form */}
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          <div
+            className={`lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-700 ${
+              isVisible
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 translate-x-8"
+            }`}
+            style={{ transitionDelay: "300ms" }}
+          >
             <div className="p-8">
               <h3 className="text-3xl font-bold text-gray-900 mb-2">
                 Send Us a Message
@@ -133,13 +189,13 @@ export default function ContactSection({
               </p>
 
               {error && (
-                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700 text-sm">
+                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700 text-sm animate-shake">
                   {error}
                 </div>
               )}
 
               {success && (
-                <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg flex items-center gap-3 text-green-700 text-sm">
+                <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg flex items-center gap-3 text-green-700 text-sm animate-slideIn">
                   <CheckCircle className="w-5 h-5 flex-shrink-0" />
                   <span>
                     Message sent successfully! We'll get back to you soon.
@@ -148,7 +204,14 @@ export default function ContactSection({
               )}
 
               <div className="space-y-6">
-                <div>
+                <div
+                  className={`transition-all duration-500 ${
+                    isVisible
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-4"
+                  }`}
+                  style={{ transitionDelay: "500ms" }}
+                >
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Full Name
                   </label>
@@ -160,11 +223,18 @@ export default function ContactSection({
                       setFormData({ ...formData, name: e.target.value })
                     }
                     disabled={loading}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0056A3] focus:border-[#0056A3] focus:bg-white transition text-gray-900 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0056A3] focus:border-[#0056A3] focus:bg-white transition-all duration-300 text-gray-900 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
-                <div>
+                <div
+                  className={`transition-all duration-500 ${
+                    isVisible
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-4"
+                  }`}
+                  style={{ transitionDelay: "600ms" }}
+                >
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email Address
                   </label>
@@ -176,11 +246,18 @@ export default function ContactSection({
                       setFormData({ ...formData, email: e.target.value })
                     }
                     disabled={loading}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0056A3] focus:border-[#0056A3] focus:bg-white transition text-gray-900 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0056A3] focus:border-[#0056A3] focus:bg-white transition-all duration-300 text-gray-900 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
-                <div>
+                <div
+                  className={`transition-all duration-500 ${
+                    isVisible
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-4"
+                  }`}
+                  style={{ transitionDelay: "700ms" }}
+                >
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Message
                   </label>
@@ -192,15 +269,22 @@ export default function ContactSection({
                       setFormData({ ...formData, message: e.target.value })
                     }
                     disabled={loading}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0056A3] focus:border-[#0056A3] focus:bg-white transition text-gray-900 placeholder-gray-400 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0056A3] focus:border-[#0056A3] focus:bg-white transition-all duration-300 text-gray-900 placeholder-gray-400 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                   ></textarea>
                 </div>
 
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="w-full text-white py-4 rounded-xl transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:bg-[#004080]"
-                  style={{ backgroundColor: "#0056A3" }}
+                  className={`w-full text-white py-4 rounded-xl transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:bg-[#004080] hover:scale-105 ${
+                    isVisible
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-4"
+                  }`}
+                  style={{
+                    backgroundColor: "#0056A3",
+                    transitionDelay: "800ms",
+                  }}
                 >
                   {loading ? (
                     <>
@@ -217,7 +301,12 @@ export default function ContactSection({
         </div>
 
         {/* Embedded Map */}
-        <div className="w-full rounded-2xl overflow-hidden shadow-xl border border-gray-200">
+        <div
+          className={`w-full rounded-2xl overflow-hidden shadow-xl border border-gray-200 transition-all duration-700 ${
+            isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
+          }`}
+          style={{ transitionDelay: "500ms" }}
+        >
           <iframe
             src={mapUrl}
             width="100%"
@@ -231,6 +320,37 @@ export default function ContactSection({
           ></iframe>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes shake {
+          0%,
+          100% {
+            transform: translateX(0);
+          }
+          25% {
+            transform: translateX(-5px);
+          }
+          75% {
+            transform: translateX(5px);
+          }
+        }
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-shake {
+          animation: shake 0.3s ease-in-out;
+        }
+        .animate-slideIn {
+          animation: slideIn 0.5s ease-out;
+        }
+      `}</style>
     </section>
   );
 }

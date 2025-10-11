@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../../firebase"; // ✅ make sure this path matches your setup
+import { db } from "../../firebase";
 
 export default function BookingModal({
   onClose = () => {},
@@ -18,6 +18,12 @@ export default function BookingModal({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // Trigger animation on mount
+    setTimeout(() => setIsVisible(true), 10);
+  }, []);
 
   // Generate time slots from 8:00 AM to 4:30 PM
   const generateTimeSlots = () => {
@@ -39,27 +45,28 @@ export default function BookingModal({
 
   const timeSlots = generateTimeSlots();
 
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeout(onClose, 300);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      // ✅ Save appointment to Firebase (in "contacts" collection)
       await addDoc(collection(db, "contacts"), {
         name: formData.name,
         email: formData.email,
         message: `Booking Request\n\nService: ${formData.service}\nDate: ${formData.date}\nTime: ${formData.time}\nPhone: ${formData.phone}`,
         status: "unread",
         createdAt: serverTimestamp(),
-        type: "booking", // optional: to differentiate from contact forms
+        type: "booking",
       });
 
-      // ✅ Notify parent component of success
       onSuccess(formData);
-
-      // ✅ Close modal
-      onClose();
+      handleClose();
     } catch (err) {
       console.error("Error submitting booking:", err);
       setError("Failed to submit booking. Please try again.");
@@ -69,16 +76,35 @@ export default function BookingModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+    <div
+      className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
+      onClick={handleClose}
+    >
+      <div
+        className={`bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden transition-all duration-500 ${
+          isVisible
+            ? "scale-100 opacity-100 translate-y-0"
+            : "scale-95 opacity-0 translate-y-8"
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-8">
-          <div className="flex items-center justify-between mb-8">
+          <div
+            className={`flex items-center justify-between mb-8 transition-all duration-500 ${
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 -translate-y-4"
+            }`}
+            style={{ transitionDelay: "100ms" }}
+          >
             <h2 className="text-2xl font-semibold text-gray-900">
               Book Appointment
             </h2>
             <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition"
+              onClick={handleClose}
+              className="text-gray-400 hover:text-gray-600 transition-all duration-300 hover:rotate-90 hover:scale-110"
             >
               <X className="w-6 h-6" />
             </button>
@@ -98,7 +124,12 @@ export default function BookingModal({
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-500 ${
+                isVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-4"
+              }`}
+              style={{ transitionDelay: "150ms" }}
               required
             />
 
@@ -109,7 +140,12 @@ export default function BookingModal({
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-500 ${
+                isVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-4"
+              }`}
+              style={{ transitionDelay: "200ms" }}
               required
             />
 
@@ -120,7 +156,12 @@ export default function BookingModal({
               onChange={(e) =>
                 setFormData({ ...formData, phone: e.target.value })
               }
-              className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-500 ${
+                isVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-4"
+              }`}
+              style={{ transitionDelay: "250ms" }}
               required
             />
 
@@ -129,7 +170,12 @@ export default function BookingModal({
               onChange={(e) =>
                 setFormData({ ...formData, service: e.target.value })
               }
-              className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-500 ${
+                isVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-4"
+              }`}
+              style={{ transitionDelay: "300ms" }}
               required
             >
               <option value="">Select Service</option>
@@ -140,7 +186,14 @@ export default function BookingModal({
               ))}
             </select>
 
-            <div>
+            <div
+              className={`transition-all duration-500 ${
+                isVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-4"
+              }`}
+              style={{ transitionDelay: "350ms" }}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select Date
               </label>
@@ -156,7 +209,14 @@ export default function BookingModal({
               />
             </div>
 
-            <div>
+            <div
+              className={`transition-all duration-500 ${
+                isVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-4"
+              }`}
+              style={{ transitionDelay: "400ms" }}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select Time (8:00 AM - 4:30 PM)
               </label>
@@ -180,7 +240,12 @@ export default function BookingModal({
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#0056A3] text-white py-3.5 rounded-xl font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`w-full bg-[#0056A3] text-white py-3.5 rounded-xl font-medium hover:bg-blue-700 transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 hover:shadow-lg ${
+                isVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4"
+              }`}
+              style={{ transitionDelay: "450ms" }}
             >
               {loading ? "Submitting..." : "Confirm Appointment"}
             </button>

@@ -17,6 +17,8 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
+import { Video, CreditCard, Shield } from "lucide-react";
+
 // Import new modern components
 import Navbar from "../components/landingpage/Navbar";
 import HeroSection from "../components/landingpage/HeroSection";
@@ -295,6 +297,34 @@ const DentalClinicWebsite = () => {
         <HeroSection
           onPrimaryClick={() => setShowBookingModal(true)}
           onSecondaryClick={() => setShowLoginModal(true)}
+        />
+
+        <AboutSection
+          title="Why Choose Diego Dental"
+          subtitle="We combine technology, care, and experience for your perfect smile"
+          features={[
+            {
+              icon: Video,
+              title: "Modern Equipment",
+              description:
+                "Experience advanced dental care with the latest technology for comfort and precision.",
+              color: "blue",
+            },
+            {
+              icon: CreditCard,
+              title: "Affordable Pricing",
+              description:
+                "We believe everyone deserves quality dental care without breaking the bank.",
+              color: "green",
+            },
+            {
+              icon: Shield,
+              title: "Trusted Experts",
+              description:
+                "Our skilled team ensures every visit is safe, comfortable, and professional.",
+              color: "blue",
+            },
+          ]}
         />
 
         <ServicesSection

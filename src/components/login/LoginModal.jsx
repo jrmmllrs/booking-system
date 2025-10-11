@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { XCircle } from "lucide-react";
 import diegoLogo from "../../assets/transparent-logo.png";
 import { auth, db } from "../../firebase";
@@ -12,6 +12,7 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
 
   // Login fields
   const [loginEmail, setLoginEmail] = useState("");
@@ -23,6 +24,14 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  useEffect(() => {
+    if (show) {
+      setTimeout(() => setIsVisible(true), 10);
+    } else {
+      setIsVisible(false);
+    }
+  }, [show]);
 
   const handleLogin = async () => {
     setError("");
@@ -41,18 +50,15 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
         loginPassword
       );
 
-      // Success - call the callback with user data
       onAuthSuccess({
         uid: userCredential.user.uid,
         email: userCredential.user.email,
       });
 
-      // Reset form
       setLoginEmail("");
       setLoginPassword("");
-      onClose();
+      handleClose();
     } catch (err) {
-      // Firebase error handling
       let errorMessage = "An error occurred during login";
 
       if (err.code === "auth/user-not-found") {
@@ -100,14 +106,12 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
     setLoading(true);
 
     try {
-      // Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         regEmail,
         regPassword
       );
 
-      // Save additional user info to Firestore
       await setDoc(doc(db, "users", userCredential.user.uid), {
         firstName,
         lastName,
@@ -115,7 +119,6 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
         createdAt: new Date().toISOString(),
       });
 
-      // Success - call the callback
       onAuthSuccess({
         uid: userCredential.user.uid,
         email: userCredential.user.email,
@@ -123,15 +126,13 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
         lastName,
       });
 
-      // Reset form
       setFirstName("");
       setLastName("");
       setRegEmail("");
       setRegPassword("");
       setConfirmPassword("");
-      onClose();
+      handleClose();
     } catch (err) {
-      // Firebase error handling
       let errorMessage = "An error occurred during registration";
 
       if (err.code === "auth/email-already-in-use") {
@@ -154,33 +155,51 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
   };
 
   const handleClose = () => {
-    setError("");
-    setLoginEmail("");
-    setLoginPassword("");
-    setFirstName("");
-    setLastName("");
-    setRegEmail("");
-    setRegPassword("");
-    setConfirmPassword("");
-    onClose();
+    setIsVisible(false);
+    setTimeout(() => {
+      setError("");
+      setLoginEmail("");
+      setLoginPassword("");
+      setFirstName("");
+      setLastName("");
+      setRegEmail("");
+      setRegPassword("");
+      setConfirmPassword("");
+      onClose();
+    }, 300);
   };
 
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative max-h-[90vh] overflow-y-auto">
+    <div 
+      className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+        isVisible ? 'opacity-100' : 'opacity-0'
+      }`}
+      onClick={handleClose}
+    >
+      <div 
+        className={`bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative max-h-[90vh] overflow-y-auto transition-all duration-500 ${
+          isVisible ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-8'
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-all duration-300 hover:rotate-90 hover:scale-110"
         >
           <XCircle className="w-6 h-6" />
         </button>
 
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4">
+        <div 
+          className={`text-center mb-8 transition-all duration-500 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+          }`}
+          style={{ transitionDelay: '100ms' }}
+        >
+          <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4 transition-transform duration-300 hover:scale-110">
             <img
               src={diegoLogo}
               alt="Diego Logo"
@@ -199,7 +218,7 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 animate-shake">
             {error}
           </div>
         )}
@@ -208,7 +227,12 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
         {isLogin ? (
           <div className="space-y-4">
             {/* Email */}
-            <div>
+            <div
+              className={`transition-all duration-500 ${
+                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
+              }`}
+              style={{ transitionDelay: '200ms' }}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email
               </label>
@@ -216,13 +240,18 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
                 type="email"
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-300"
                 placeholder="your@email.com"
               />
             </div>
 
             {/* Password */}
-            <div>
+            <div
+              className={`transition-all duration-500 ${
+                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
+              }`}
+              style={{ transitionDelay: '300ms' }}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
@@ -230,7 +259,7 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
                 type="password"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-300"
                 placeholder="••••••••"
                 onKeyPress={(e) => e.key === "Enter" && handleLogin()}
               />
@@ -240,18 +269,26 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
             <button
               onClick={handleLogin}
               disabled={loading}
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+              className={`w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 disabled:opacity-50 hover:scale-105 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+              style={{ transitionDelay: '400ms' }}
             >
               {loading ? "Logging in..." : "Login"}
             </button>
 
             {/* Signup Option */}
-            <div className="text-center">
+            <div 
+              className={`text-center transition-all duration-500 ${
+                isVisible ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ transitionDelay: '500ms' }}
+            >
               <span className="text-gray-600">Don't have an account? </span>
               <button
                 onClick={switchMode}
                 disabled={loading}
-                className="text-cyan-600 font-semibold hover:text-cyan-700"
+                className="text-cyan-600 font-semibold hover:text-cyan-700 transition-colors duration-300"
               >
                 Sign up
               </button>
@@ -261,7 +298,12 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
           /* Registration Form */
           <div className="space-y-4">
             {/* First Name */}
-            <div>
+            <div
+              className={`transition-all duration-500 ${
+                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
+              }`}
+              style={{ transitionDelay: '200ms' }}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 First Name
               </label>
@@ -269,13 +311,18 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-300"
                 placeholder="John"
               />
             </div>
 
             {/* Last Name */}
-            <div>
+            <div
+              className={`transition-all duration-500 ${
+                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
+              }`}
+              style={{ transitionDelay: '250ms' }}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Last Name
               </label>
@@ -283,13 +330,18 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-300"
                 placeholder="Doe"
               />
             </div>
 
             {/* Email */}
-            <div>
+            <div
+              className={`transition-all duration-500 ${
+                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
+              }`}
+              style={{ transitionDelay: '300ms' }}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email
               </label>
@@ -297,13 +349,18 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
                 type="email"
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-300"
                 placeholder="your@email.com"
               />
             </div>
 
             {/* Password */}
-            <div>
+            <div
+              className={`transition-all duration-500 ${
+                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
+              }`}
+              style={{ transitionDelay: '350ms' }}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
@@ -311,13 +368,18 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
                 type="password"
                 value={regPassword}
                 onChange={(e) => setRegPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-300"
                 placeholder="••••••••"
               />
             </div>
 
             {/* Confirm Password */}
-            <div>
+            <div
+              className={`transition-all duration-500 ${
+                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
+              }`}
+              style={{ transitionDelay: '400ms' }}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Confirm Password
               </label>
@@ -325,7 +387,7 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-300"
                 placeholder="••••••••"
                 onKeyPress={(e) => e.key === "Enter" && handleRegister()}
               />
@@ -335,18 +397,26 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
             <button
               onClick={handleRegister}
               disabled={loading}
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+              className={`w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 disabled:opacity-50 hover:scale-105 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+              style={{ transitionDelay: '450ms' }}
             >
               {loading ? "Creating Account..." : "Create Account"}
             </button>
 
             {/* Login Option */}
-            <div className="text-center">
+            <div 
+              className={`text-center transition-all duration-500 ${
+                isVisible ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ transitionDelay: '500ms' }}
+            >
               <span className="text-gray-600">Already have an account? </span>
               <button
                 onClick={switchMode}
                 disabled={loading}
-                className="text-cyan-600 font-semibold hover:text-cyan-700"
+                className="text-cyan-600 font-semibold hover:text-cyan-700 transition-colors duration-300"
               >
                 Login
               </button>
@@ -354,6 +424,17 @@ export default function AuthModal({ show, onClose, onAuthSuccess }) {
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+        .animate-shake {
+          animation: shake 0.3s ease-in-out;
+        }
+      `}</style>
     </div>
   );
 }
