@@ -1,217 +1,250 @@
 // src/components/admin/ContactCard.jsx
 import React, { useState } from "react";
-import { Eye, Trash2, Mail, X } from "lucide-react";
+import { Mail, Trash2, Clock, X, FileText, User, Send } from "lucide-react";
 
 const ContactCard = ({ contact, onMarkAsRead, onDelete }) => {
   const [showReplyModal, setShowReplyModal] = useState(false);
   const [replyMessage, setReplyMessage] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState("");
-  const [sending, setSending] = useState(false);
 
   const emailTemplates = {
-    general: {
-      subject: "Re: Your Inquiry",
-      body: `Dear ${contact.name},
+    general: `Dear ${contact.name},
 
-Thank you for contacting us. We have received your message and appreciate you reaching out.
-
-We will review your inquiry and get back to you as soon as possible.
+Thank you for contacting us. We have received your message and will get back to you as soon as possible.
 
 Best regards,
-HomeSerBase Team`,
-    },
-    booking: {
-      subject: "Booking Confirmation",
-      body: `Dear ${contact.name},
+Diego Dental Clinic`,
 
-Thank you for your interest in booking with us!
+    booking: `Dear ${contact.name},
 
-We have received your inquiry and our team will contact you shortly to confirm your appointment details.
-
-If you have any urgent questions, please don't hesitate to reach out.
+Thank you for your booking inquiry! We have received your request and will confirm your appointment details shortly.
 
 Best regards,
-HomeSerBase Team`,
-    },
-    support: {
-      subject: "Support Response",
-      body: `Dear ${contact.name},
+Diego Dental Clinic`,
 
-Thank you for contacting our support team.
+    support: `Dear ${contact.name},
 
-We understand your concern and are here to help. Our team is reviewing your message and will provide you with a solution shortly.
+Thank you for reaching out. We're here to help and will respond to your inquiry soon.
 
 Best regards,
-HomeSerBase Support Team`,
-    },
-    thankyou: {
-      subject: "Thank You",
-      body: `Dear ${contact.name},
-
-Thank you so much for your message!
-
-We truly appreciate you taking the time to reach out to us. Your feedback and inquiries help us improve our services.
-
-Best regards,
-HomeSerBase Team`,
-    },
+Diego Dental Clinic`,
   };
 
   const formatDate = (timestamp) => {
     if (!timestamp) return "N/A";
     const date = timestamp.toDate();
-    return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+    const now = new Date();
+    const diff = now - date;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+
+    if (hours < 1) return "Just now";
+    if (hours < 24) return `${hours}h ago`;
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
   const handleTemplateSelect = (templateKey) => {
     setSelectedTemplate(templateKey);
-    if (templateKey) {
-      const template = emailTemplates[templateKey];
-      setReplyMessage(template.body);
-    } else {
-      setReplyMessage("");
-    }
+    setReplyMessage(templateKey ? emailTemplates[templateKey] : "");
   };
 
   const handleSendReply = () => {
-    if (!replyMessage.trim()) {
-      alert("Please enter a message");
-      return;
-    }
+    if (!replyMessage.trim()) return;
 
-    setSending(true);
+    const subject =
+      selectedTemplate === "booking"
+        ? "Booking Confirmation"
+        : selectedTemplate === "support"
+        ? "Support Response"
+        : "Re: Your Message";
 
-    const template = selectedTemplate ? emailTemplates[selectedTemplate] : null;
-    const subject = template ? template.subject : "Re: Your Message";
-
-    // Create mailto link with pre-filled content
     const mailtoLink = `mailto:${contact.email}?subject=${encodeURIComponent(
       subject
     )}&body=${encodeURIComponent(replyMessage)}`;
-
-    // Open default email client
     window.location.href = mailtoLink;
 
-    // Mark as read after sending
     setTimeout(() => {
       if (contact.status === "unread") {
         onMarkAsRead(contact.id);
       }
-      setSending(false);
       setShowReplyModal(false);
       setReplyMessage("");
       setSelectedTemplate("");
-    }, 1000);
+    }, 500);
   };
+
+  const isUnread = contact.status === "unread";
 
   return (
     <>
       <div
-        className={`border rounded-xl p-6 transition-all ${
-          contact.status === "unread"
-            ? "bg-blue-50 border-blue-200"
-            : "bg-white border-gray-200"
+        className={`group relative bg-white rounded-2xl border transition-all duration-300 ${
+          isUnread
+            ? "border-[#0056A3]/20 hover:border-[#0056A3]/40 hover:shadow-xl hover:shadow-[#0056A3]/5"
+            : "border-gray-100 hover:border-gray-200 hover:shadow-xl hover:shadow-gray-100"
         }`}
       >
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h4 className="text-lg font-semibold text-gray-800">
-                {contact.name}
-              </h4>
-              {contact.status === "unread" && (
-                <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
-                  New
-                </span>
-              )}
+        {/* Unread Indicator Bar */}
+        {isUnread && (
+          <div className="absolute -left-1 top-8 w-1 h-16 bg-gradient-to-b from-[#0056A3] to-[#009846] rounded-r-full" />
+        )}
+
+        <div className="p-8">
+          {/* Header */}
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-2">
+                <h4 className="text-xl font-semibold text-gray-900 tracking-tight">
+                  {contact.name}
+                </h4>
+                {isUnread && (
+                  <span className="flex-shrink-0 text-xs font-bold tracking-[0.15em] uppercase px-3 py-1.5 rounded-xl bg-[#0056A3]/10 text-[#0056A3] border border-[#0056A3]/20">
+                    New
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 text-gray-500">
+                <Mail className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm truncate">{contact.email}</span>
+              </div>
             </div>
-            <p className="text-sm text-gray-600">{contact.email}</p>
-            <p className="text-xs text-gray-500 mt-1">
-              {formatDate(contact.createdAt)}
+
+            <div className="flex items-center gap-2 ml-4">
+              <button
+                onClick={() => setShowReplyModal(true)}
+                className="group/btn relative overflow-hidden transition-all duration-500"
+                title="Reply"
+              >
+                <div className="relative p-2.5 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-[#009846]/10">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#009846] to-[#009846]/80 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                  <Send className="relative z-10 w-4 h-4 text-gray-600 group-hover/btn:text-white transition-colors duration-500" />
+                </div>
+              </button>
+
+              <button
+                onClick={() => onDelete(contact.id)}
+                className="group/btn relative overflow-hidden transition-all duration-500"
+                title="Delete"
+              >
+                <div className="relative p-2.5 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-red-500/10">
+                  <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-red-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                  <Trash2 className="relative z-10 w-4 h-4 text-gray-600 group-hover/btn:text-white transition-colors duration-500" />
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Message */}
+          <div className="mb-4 p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="w-4 h-4 text-[#0056A3]" />
+              <p className="text-xs uppercase tracking-[0.1em] text-[#0056A3] font-bold">
+                Message
+              </p>
+            </div>
+            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+              {contact.message}
             </p>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowReplyModal(true)}
-              className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
-              title="Reply via email"
-            >
-              <Mail className="w-5 h-5" />
-            </button>
-            {contact.status === "unread" && (
+
+          {/* Footer */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Clock className="w-4 h-4" />
+              <span>{formatDate(contact.createdAt)}</span>
+            </div>
+            {isUnread && (
               <button
                 onClick={() => onMarkAsRead(contact.id)}
-                className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                title="Mark as read"
+                className="text-sm font-semibold text-[#0056A3] hover:text-[#009846] transition-colors"
               >
-                <Eye className="w-5 h-5" />
+                Mark as read
               </button>
             )}
-            <button
-              onClick={() => onDelete(contact.id)}
-              className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-              title="Delete"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
           </div>
-        </div>
-        <div className="bg-white rounded-lg p-4 border border-gray-100">
-          <p className="text-gray-700 whitespace-pre-wrap">{contact.message}</p>
         </div>
       </div>
 
       {/* Reply Modal */}
       {showReplyModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">
-                  Reply to {contact.name}
-                </h3>
-                <p className="text-sm text-gray-600">{contact.email}</p>
-              </div>
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => {
+            setShowReplyModal(false);
+            setReplyMessage("");
+            setSelectedTemplate("");
+          }}
+        >
+          <div
+            className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="relative px-8 py-6 border-b border-gray-100">
               <button
                 onClick={() => {
                   setShowReplyModal(false);
                   setReplyMessage("");
                   setSelectedTemplate("");
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="absolute right-6 top-6 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all"
               >
-                <X className="w-5 h-5 text-gray-600" />
+                <X className="w-5 h-5" />
               </button>
+              <h3 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">
+                Reply to Message
+              </h3>
+              <div className="flex items-center gap-2 text-gray-500">
+                <Mail className="w-4 h-4" />
+                <span className="text-sm">{contact.email}</span>
+              </div>
             </div>
 
-            <div className="p-6 space-y-4">
+            {/* Content */}
+            <div className="p-8 space-y-6 overflow-y-auto max-h-[calc(90vh-220px)]">
               {/* Original Message */}
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <p className="text-xs text-gray-500 mb-2">Original Message:</p>
-                <p className="text-sm text-gray-700">{contact.message}</p>
+              <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <User className="w-4 h-4 text-[#0056A3]" />
+                  <p className="text-xs uppercase tracking-[0.1em] text-[#0056A3] font-bold">
+                    Original Message from {contact.name}
+                  </p>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {contact.message}
+                </p>
               </div>
 
               {/* Template Selector */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Template (Optional)
+                <label className="block text-xs uppercase tracking-[0.1em] text-gray-600 font-bold mb-3">
+                  Quick Template
                 </label>
-                <select
-                  value={selectedTemplate}
-                  onChange={(e) => handleTemplateSelect(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  <option value="">-- Custom Reply --</option>
-                  <option value="general">General Response</option>
-                  <option value="booking">Booking Inquiry</option>
-                  <option value="support">Support Response</option>
-                  <option value="thankyou">Thank You</option>
-                </select>
+                <div className="grid grid-cols-4 gap-3">
+                  {[
+                    { key: "", label: "Custom" },
+                    { key: "general", label: "General" },
+                    { key: "booking", label: "Booking" },
+                    { key: "support", label: "Support" },
+                  ].map((template) => (
+                    <button
+                      key={template.key}
+                      type="button"
+                      onClick={() => handleTemplateSelect(template.key)}
+                      className={`relative overflow-hidden px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                        selectedTemplate === template.key
+                          ? "bg-gradient-to-br from-[#0056A3] to-[#009846] text-white shadow-lg"
+                          : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200"
+                      }`}
+                    >
+                      {template.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Reply Message */}
+              {/* Reply Textarea */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs uppercase tracking-[0.1em] text-gray-600 font-bold mb-3">
                   Your Reply
                 </label>
                 <textarea
@@ -219,40 +252,44 @@ HomeSerBase Team`,
                   onChange={(e) => setReplyMessage(e.target.value)}
                   rows="10"
                   placeholder="Type your reply here..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                ></textarea>
+                  className="w-full px-4 py-4 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0056A3] focus:border-transparent resize-none text-sm transition-all leading-relaxed"
+                />
               </div>
+            </div>
 
-              {/* Actions */}
-              <div className="flex gap-3">
-                <button
-                  onClick={handleSendReply}
-                  disabled={sending || !replyMessage.trim()}
-                  className="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {sending ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      <span>Sending...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Mail className="w-5 h-5" />
-                      <span>Send Reply</span>
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowReplyModal(false);
-                    setReplyMessage("");
-                    setSelectedTemplate("");
-                  }}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
-                >
-                  Cancel
-                </button>
-              </div>
+            {/* Footer Actions */}
+            <div className="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex gap-3">
+              <button
+                onClick={() => {
+                  setShowReplyModal(false);
+                  setReplyMessage("");
+                  setSelectedTemplate("");
+                }}
+                className="group/btn relative overflow-hidden flex-1 transition-all duration-500"
+              >
+                <div className="relative px-6 py-3.5 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg">
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                  <span className="relative z-10 text-sm font-semibold tracking-wide text-gray-700 group-hover/btn:text-gray-900 transition-colors duration-500">
+                    Cancel
+                  </span>
+                </div>
+              </button>
+
+              <button
+                onClick={handleSendReply}
+                disabled={!replyMessage.trim()}
+                className="group/btn relative overflow-hidden flex-1 transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="relative px-6 py-3.5 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-[#009846]/10">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#0056A3] to-[#009846] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                  <div className="relative z-10 flex items-center justify-center gap-2">
+                    <Send className="w-4 h-4 text-[#0056A3] group-hover/btn:text-white transition-colors duration-500" />
+                    <span className="text-sm font-semibold tracking-wide text-gray-700 group-hover/btn:text-white transition-colors duration-500">
+                      Send Reply
+                    </span>
+                  </div>
+                </div>
+              </button>
             </div>
           </div>
         </div>

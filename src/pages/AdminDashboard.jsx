@@ -1,6 +1,6 @@
 // src/pages/AdminDashboard.jsx
 import React, { useState, useEffect } from "react";
-import { Calendar, User, LogOut, Filter, Mail } from "lucide-react";
+import { Calendar, User, LogOut, Filter, Mail, MapPin } from "lucide-react";
 import { auth, db } from "../firebase";
 import {
   signInWithEmailAndPassword,
@@ -21,7 +21,7 @@ import { ADMIN_EMAILS } from "../constants";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorAlert from "../components/common/ErrorAlert";
 import LoginForm from "../components/login/LoginForm";
-import BookingCard from "../components/cards/BookingCard";
+import AdminBookingList from "../components/cards/AdminBookingList";
 import ContactCard from "../components/cards/ContactCard";
 import AnalyticsDashboard from "../components/dashboard/AnalyticsDashboard";
 import SearchFilter from "../components/dashboard/SearchFilter";
@@ -39,6 +39,7 @@ const AdminDashboard = () => {
   // Bookings State
   const [bookings, setBookings] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [branchFilter, setBranchFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
   // Contacts State
@@ -232,13 +233,13 @@ const AdminDashboard = () => {
   // Quick Actions Handlers
   const handleExport = () => {
     const csv =
-      "Name,Email,Phone,Service,Date,Time,Status,Notes\n" +
-      bookings
+      "Name,Email,Phone,Branch,Service,Date,Time,Status,Notes\n" +
+      filteredBookings
         .map(
           (b) =>
-            `"${b.name}","${b.email}","${b.phone || ""}","${b.service}","${
-              b.date
-            }","${b.time}","${b.status}","${b.notes || ""}"`
+            `"${b.name}","${b.email}","${b.phone || ""}","${b.branch || ""}","${
+              b.service
+            }","${b.date}","${b.time}","${b.status}","${b.notes || ""}"`
         )
         .join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
@@ -255,12 +256,14 @@ const AdminDashboard = () => {
     await loadAllContacts();
   };
 
-  // Stats Calculations
+  // Stats Calculations - Updated to include branch filtering
   const bookingStats = {
     total: bookings.length,
     pending: bookings.filter((b) => b.status === "pending").length,
     confirmed: bookings.filter((b) => b.status === "confirmed").length,
     cancelled: bookings.filter((b) => b.status === "cancelled").length,
+    villasis: bookings.filter((b) => b.branch === "villasis").length,
+    carmen: bookings.filter((b) => b.branch === "carmen").length,
   };
 
   const contactStats = {
@@ -269,9 +272,10 @@ const AdminDashboard = () => {
     read: contacts.filter((c) => c.status === "read").length,
   };
 
-  // Filtered Data
+  // Filtered Data - Updated to include branch filter
   const filteredBookings = bookings
     .filter((b) => statusFilter === "all" || b.status === statusFilter)
+    .filter((b) => branchFilter === "all" || b.branch === branchFilter)
     .filter(
       (b) =>
         b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -308,25 +312,32 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-br from-white via-white to-indigo-50/30 rounded-3xl shadow-2xl p-8 mb-6 border border-gray-200/50">
+        <div className="bg-white rounded-2xl border border-gray-100 p-8 mb-6 transition-all duration-300 hover:border-gray-200 hover:shadow-xl hover:shadow-gray-100">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-14 h-14 bg-gradient-to-br from-[#0056A3] to-[#009846] rounded-2xl flex items-center justify-center shadow-lg">
                 <User className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
                   Admin Dashboard
                 </h2>
-                <p className="text-sm text-gray-600">{user.email}</p>
+                <p className="text-sm text-gray-500">{user.email}</p>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-5 py-3 text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all font-medium shadow-md"
+              className="group/btn relative overflow-hidden transition-all duration-500"
             >
-              <LogOut className="w-5 h-5" />
-              <span>Logout</span>
+              <div className="relative px-6 py-3 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-red-500/10">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-red-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                <div className="relative z-10 flex items-center gap-2">
+                  <LogOut className="w-5 h-5 text-gray-600 group-hover/btn:text-white transition-colors duration-500" />
+                  <span className="text-sm font-semibold text-gray-700 group-hover/btn:text-white transition-colors duration-500">
+                    Logout
+                  </span>
+                </div>
+              </div>
             </button>
           </div>
         </div>
@@ -363,6 +374,43 @@ const AdminDashboard = () => {
               contactStats={contactStats}
             />
 
+            {/* Branch Stats Cards */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 transition-all duration-300 hover:border-gray-200 hover:shadow-xl hover:shadow-gray-100">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <MapPin className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-semibold">
+                      Villasis Branch
+                    </p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {bookingStats.villasis}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Total Bookings</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 transition-all duration-300 hover:border-gray-200 hover:shadow-xl hover:shadow-gray-100">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <MapPin className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-semibold">
+                      Carmen Branch
+                    </p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {bookingStats.carmen}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Total Bookings</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="grid lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2">
                 <AnalyticsDashboard bookings={bookings} />
@@ -390,46 +438,98 @@ const AdminDashboard = () => {
             />
 
             <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-200/50">
-              <div className="flex items-center gap-4">
-                <div className="p-2.5 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl">
-                  <Filter className="w-5 h-5 text-indigo-600" />
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* Status Filter */}
+                <div className="flex items-center gap-4">
+                  <div className="p-2.5 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl">
+                    <Filter className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm font-medium"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
                 </div>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm font-medium"
-                >
-                  <option value="all">All Bookings</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-            </div>
 
-            <div className="space-y-4">
-              {loading && filteredBookings.length === 0 ? (
-                <LoadingSpinner message="Loading bookings..." />
-              ) : filteredBookings.length === 0 ? (
-                <div className="bg-white rounded-3xl shadow-xl p-12 text-center border border-gray-200/50">
-                  <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 text-lg">No bookings found</p>
+                {/* Branch Filter */}
+                <div className="flex items-center gap-4">
+                  <div className="p-2.5 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl">
+                    <MapPin className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <select
+                    value={branchFilter}
+                    onChange={(e) => setBranchFilter(e.target.value)}
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm font-medium"
+                  >
+                    <option value="all">All Branches</option>
+                    <option value="villasis">Villasis Branch</option>
+                    <option value="carmen">Carmen Branch</option>
+                  </select>
                 </div>
-              ) : (
-                filteredBookings.map((booking) => (
-                  <BookingCard
-                    key={booking.id}
-                    booking={booking}
-                    onCancel={(id) => updateBookingStatus(id, "cancelled")}
-                    onConfirm={(id) => updateBookingStatus(id, "confirmed")}
-                    onSetPending={(id) => updateBookingStatus(id, "pending")}
-                    onDelete={deleteBooking}
-                    loading={loading}
-                    isAdmin={true}
-                  />
-                ))
+              </div>
+
+              {/* Active Filters Display */}
+              {(statusFilter !== "all" || branchFilter !== "all") && (
+                <div className="mt-4 flex items-center gap-2 flex-wrap">
+                  <span className="text-sm text-gray-500 font-semibold">
+                    Active Filters:
+                  </span>
+                  {statusFilter !== "all" && (
+                    <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">
+                      Status: {statusFilter}
+                    </span>
+                  )}
+                  {branchFilter !== "all" && (
+                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
+                      Branch:{" "}
+                      {branchFilter === "villasis" ? "Villasis" : "Carmen"}
+                    </span>
+                  )}
+                  <button
+                    onClick={() => {
+                      setStatusFilter("all");
+                      setBranchFilter("all");
+                    }}
+                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold hover:bg-gray-200 transition-colors"
+                  >
+                    Clear All
+                  </button>
+                </div>
               )}
             </div>
+
+            {loading && filteredBookings.length === 0 ? (
+              <LoadingSpinner message="Loading bookings..." />
+            ) : (
+              <>
+                <div className="bg-white rounded-xl p-4 border border-gray-200/50">
+                  <p className="text-sm text-gray-600">
+                    Showing{" "}
+                    <span className="font-bold text-gray-900">
+                      {filteredBookings.length}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-bold text-gray-900">
+                      {bookings.length}
+                    </span>{" "}
+                    bookings
+                  </p>
+                </div>
+                <AdminBookingList
+                  bookings={filteredBookings}
+                  onCancel={(id) => updateBookingStatus(id, "cancelled")}
+                  onConfirm={(id) => updateBookingStatus(id, "confirmed")}
+                  onSetPending={(id) => updateBookingStatus(id, "pending")}
+                  onDelete={deleteBooking}
+                  loading={loading}
+                />
+              </>
+            )}
           </div>
         )}
 

@@ -1,41 +1,123 @@
 import React, { useState } from "react";
-import { XCircle, Calendar, Clock, FileText, User, Briefcase, ArrowRight, ArrowLeft, Check } from "lucide-react";
+import {
+  XCircle,
+  Calendar,
+  Clock,
+  FileText,
+  User,
+  Briefcase,
+  ArrowRight,
+  ArrowLeft,
+  Check,
+  MapPin,
+} from "lucide-react";
 
-// Mock components - replace with your actual imports
 const PersonalInfoSection = ({ formData, onInputChange }) => (
   <div className="space-y-4">
     <div>
-      <label className="block text-sm font-semibold mb-2 text-gray-700">Full Name</label>
+      <label className="block text-sm font-semibold mb-2 text-gray-700">
+        Full Name
+      </label>
       <input
         type="text"
         value={formData.name || ""}
         onChange={(e) => onInputChange("name", e.target.value)}
-        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-[#0056A3] focus:outline-none transition-colors"
         placeholder="John Doe"
       />
     </div>
     <div>
-      <label className="block text-sm font-semibold mb-2 text-gray-700">Email</label>
+      <label className="block text-sm font-semibold mb-2 text-gray-700">
+        Email
+      </label>
       <input
         type="email"
         value={formData.email || ""}
         onChange={(e) => onInputChange("email", e.target.value)}
-        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-[#0056A3] focus:outline-none transition-colors"
         placeholder="john@example.com"
       />
     </div>
     <div>
-      <label className="block text-sm font-semibold mb-2 text-gray-700">Phone</label>
+      <label className="block text-sm font-semibold mb-2 text-gray-700">
+        Phone
+      </label>
       <input
         type="tel"
         value={formData.phone || ""}
         onChange={(e) => onInputChange("phone", e.target.value)}
-        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
-        placeholder="+1 (555) 000-0000"
+        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-[#0056A3] focus:outline-none transition-colors"
+        placeholder="+63 XXX XXX XXXX"
       />
     </div>
   </div>
 );
+
+const BranchSelector = ({ selected, onChange }) => {
+  const branches = [
+    {
+      id: "villasis",
+      name: "Villasis Branch",
+      location: "Villasis, Pangasinan",
+      address: "Main Street, Villasis",
+    },
+    {
+      id: "carmen",
+      name: "Carmen Branch",
+      location: "Carmen, Rosales, Pangasinan",
+      address: "Carmen, Rosales",
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {branches.map((branch) => (
+        <button
+          key={branch.id}
+          type="button"
+          onClick={() => onChange(branch.id)}
+          className={`group relative p-6 border-2 rounded-xl text-left transition-all ${
+            selected === branch.id
+              ? "border-[#0056A3] bg-gradient-to-br from-[#0056A3]/5 to-[#009846]/5 shadow-lg"
+              : "border-gray-200 hover:border-gray-300 hover:shadow-md"
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <div
+              className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                selected === branch.id
+                  ? "bg-gradient-to-br from-[#0056A3] to-[#009846]"
+                  : "bg-gray-100"
+              }`}
+            >
+              <MapPin
+                className={`w-5 h-5 ${
+                  selected === branch.id ? "text-white" : "text-gray-600"
+                }`}
+              />
+            </div>
+            <div className="flex-1">
+              <div className="font-bold text-lg text-gray-900">
+                {branch.name}
+              </div>
+              <div className="text-sm text-gray-600 mt-1">
+                {branch.location}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">{branch.address}</div>
+            </div>
+          </div>
+          {selected === branch.id && (
+            <div className="absolute top-3 right-3">
+              <div className="w-6 h-6 bg-gradient-to-br from-[#0056A3] to-[#009846] rounded-full flex items-center justify-center">
+                <Check className="w-4 h-4 text-white" />
+              </div>
+            </div>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+};
 
 const ServiceSelector = ({ selected, onChange }) => {
   const services = [
@@ -54,7 +136,7 @@ const ServiceSelector = ({ selected, onChange }) => {
           onClick={() => onChange(service.id)}
           className={`p-6 border-2 rounded-xl text-left transition-all ${
             selected === service.id
-              ? "border-blue-500 bg-blue-50 shadow-lg"
+              ? "border-[#0056A3] bg-gradient-to-br from-[#0056A3]/5 to-[#009846]/5 shadow-lg"
               : "border-gray-200 hover:border-gray-300 hover:shadow-md"
           }`}
         >
@@ -68,7 +150,7 @@ const ServiceSelector = ({ selected, onChange }) => {
 
 const TimeSlotDropdown = ({ show, slots, selected, onSelect }) => {
   if (!show) return null;
-  
+
   return (
     <div className="absolute z-10 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto">
       {slots.map((slot, idx) => (
@@ -76,8 +158,10 @@ const TimeSlotDropdown = ({ show, slots, selected, onSelect }) => {
           key={idx}
           type="button"
           onClick={() => onSelect(slot)}
-          className={`w-full text-left p-3 hover:bg-blue-50 transition-colors ${
-            selected === slot ? "bg-blue-100 font-semibold" : ""
+          className={`w-full text-left p-3 hover:bg-[#0056A3]/5 transition-colors ${
+            selected === slot
+              ? "bg-[#0056A3]/10 font-semibold text-[#0056A3]"
+              : ""
           }`}
         >
           {slot}
@@ -108,13 +192,14 @@ export default function BookingForm({
 
   const steps = [
     { number: 1, title: "Personal Info", icon: User },
-    { number: 2, title: "Select Service", icon: Briefcase },
-    { number: 3, title: "Date & Time", icon: Calendar },
-    { number: 4, title: "Review", icon: FileText },
+    { number: 2, title: "Select Branch", icon: MapPin },
+    { number: 3, title: "Select Service", icon: Briefcase },
+    { number: 4, title: "Date & Time", icon: Calendar },
+    { number: 5, title: "Review", icon: FileText },
   ];
 
   const nextStep = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1);
+    if (currentStep < 5) setCurrentStep(currentStep + 1);
   };
 
   const prevStep = () => {
@@ -126,19 +211,31 @@ export default function BookingForm({
       case 1:
         return formData.name && formData.email && formData.phone;
       case 2:
-        return formData.service;
+        return formData.branch;
       case 3:
+        return formData.service;
+      case 4:
         return formData.date && formData.time;
       default:
         return true;
     }
   };
 
+  const getBranchName = (branchId) => {
+    const branches = {
+      villasis: "Villasis, Pangasinan Branch",
+      carmen: "Carmen, Rosales, Pangasinan Branch",
+    };
+    return branches[branchId] || branchId;
+  };
+
   return (
-    <div className="p-8 bg-white rounded-3xl shadow-2xl border border-gray-100 max-w-4xl mx-auto">
+    <div className="p-8 bg-white rounded-2xl border border-gray-100 max-w-4xl mx-auto transition-all duration-300 hover:border-gray-200 hover:shadow-xl hover:shadow-gray-100">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
-        <h3 className="text-3xl font-bold text-gray-900">Create New Booking</h3>
+        <h3 className="text-3xl font-bold text-gray-900 tracking-tight">
+          Create New Booking
+        </h3>
         <button
           onClick={onCancel}
           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
@@ -153,8 +250,8 @@ export default function BookingForm({
           {/* Progress Line */}
           <div className="absolute top-5 left-0 right-0 h-1 bg-gray-200 -z-10">
             <div
-              className="h-full bg-blue-500 transition-all duration-500 ease-out"
-              style={{ width: `${((currentStep - 1) / 3) * 100}%` }}
+              className="h-full bg-gradient-to-r from-[#0056A3] to-[#009846] transition-all duration-500 ease-out"
+              style={{ width: `${((currentStep - 1) / 4) * 100}%` }}
             />
           </div>
 
@@ -165,13 +262,16 @@ export default function BookingForm({
             const isCompleted = currentStep > step.number;
 
             return (
-              <div key={step.number} className="flex flex-col items-center relative">
+              <div
+                key={step.number}
+                className="flex flex-col items-center relative"
+              >
                 <div
                   className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
                     isCompleted
-                      ? "bg-blue-500 shadow-lg"
+                      ? "bg-gradient-to-br from-[#0056A3] to-[#009846] shadow-lg"
                       : isActive
-                      ? "bg-blue-500 shadow-lg scale-110"
+                      ? "bg-gradient-to-br from-[#0056A3] to-[#009846] shadow-lg scale-110"
                       : "bg-gray-200"
                   }`}
                 >
@@ -204,10 +304,10 @@ export default function BookingForm({
         {currentStep === 1 && (
           <div className="animate-fadeIn">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#0056A3] to-[#009846] rounded-xl flex items-center justify-center shadow-lg">
                 <User className="w-5 h-5 text-white" />
               </div>
-              <h4 className="text-2xl font-bold text-gray-900">
+              <h4 className="text-2xl font-bold text-gray-900 tracking-tight">
                 Personal Information
               </h4>
             </div>
@@ -218,14 +318,32 @@ export default function BookingForm({
           </div>
         )}
 
-        {/* Step 2: Service Selection */}
+        {/* Step 2: Branch Selection */}
         {currentStep === 2 && (
           <div className="animate-fadeIn">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#0056A3] to-[#009846] rounded-xl flex items-center justify-center shadow-lg">
+                <MapPin className="w-5 h-5 text-white" />
+              </div>
+              <h4 className="text-2xl font-bold text-gray-900 tracking-tight">
+                Select Branch
+              </h4>
+            </div>
+            <BranchSelector
+              selected={formData.branch}
+              onChange={(v) => onInputChange("branch", v)}
+            />
+          </div>
+        )}
+
+        {/* Step 3: Service Selection */}
+        {currentStep === 3 && (
+          <div className="animate-fadeIn">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#0056A3] to-[#009846] rounded-xl flex items-center justify-center shadow-lg">
                 <Briefcase className="w-5 h-5 text-white" />
               </div>
-              <h4 className="text-2xl font-bold text-gray-900">
+              <h4 className="text-2xl font-bold text-gray-900 tracking-tight">
                 Select Service
               </h4>
             </div>
@@ -236,14 +354,14 @@ export default function BookingForm({
           </div>
         )}
 
-        {/* Step 3: Date & Time */}
-        {currentStep === 3 && (
+        {/* Step 4: Date & Time */}
+        {currentStep === 4 && (
           <div className="animate-fadeIn">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#0056A3] to-[#009846] rounded-xl flex items-center justify-center shadow-lg">
                 <Calendar className="w-5 h-5 text-white" />
               </div>
-              <h4 className="text-2xl font-bold text-gray-900">
+              <h4 className="text-2xl font-bold text-gray-900 tracking-tight">
                 Choose Date & Time
               </h4>
             </div>
@@ -258,7 +376,7 @@ export default function BookingForm({
                   min={minDate}
                   value={formData.date}
                   onChange={(e) => onInputChange("date", e.target.value)}
-                  className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                  className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-[#0056A3] focus:outline-none transition-colors"
                 />
               </div>
 
@@ -293,47 +411,80 @@ export default function BookingForm({
                 value={formData.notes}
                 onChange={(e) => onInputChange("notes", e.target.value)}
                 rows="4"
-                className="w-full p-4 border-2 border-gray-200 rounded-xl resize-none focus:border-blue-500 focus:outline-none transition-colors"
+                className="w-full p-4 border-2 border-gray-200 rounded-xl resize-none focus:border-[#0056A3] focus:outline-none transition-colors"
                 placeholder="Special requirements or medical notes..."
               />
             </div>
           </div>
         )}
 
-        {/* Step 4: Review */}
-        {currentStep === 4 && (
+        {/* Step 5: Review */}
+        {currentStep === 5 && (
           <div className="animate-fadeIn">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#0056A3] to-[#009846] rounded-xl flex items-center justify-center shadow-lg">
                 <FileText className="w-5 h-5 text-white" />
               </div>
-              <h4 className="text-2xl font-bold text-gray-900">
+              <h4 className="text-2xl font-bold text-gray-900 tracking-tight">
                 Review Booking
               </h4>
             </div>
 
-            <div className="space-y-6">
-              <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
-                <h5 className="font-bold text-lg mb-4 text-gray-900">Personal Information</h5>
+            <div className="space-y-4">
+              <div className="bg-gray-50/50 rounded-xl p-6 border border-gray-100">
+                <h5 className="font-bold text-lg mb-4 text-gray-900">
+                  Personal Information
+                </h5>
                 <div className="space-y-2 text-gray-700">
-                  <p><span className="font-semibold">Name:</span> {formData.name}</p>
-                  <p><span className="font-semibold">Email:</span> {formData.email}</p>
-                  <p><span className="font-semibold">Phone:</span> {formData.phone}</p>
+                  <p>
+                    <span className="font-semibold">Name:</span> {formData.name}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Email:</span>{" "}
+                    {formData.email}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Phone:</span>{" "}
+                    {formData.phone}
+                  </p>
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
-                <h5 className="font-bold text-lg mb-4 text-gray-900">Service Details</h5>
+              <div className="bg-gray-50/50 rounded-xl p-6 border border-gray-100">
+                <h5 className="font-bold text-lg mb-4 text-gray-900">
+                  Branch & Service
+                </h5>
                 <div className="space-y-2 text-gray-700">
-                  <p><span className="font-semibold">Service:</span> {formData.service}</p>
-                  <p><span className="font-semibold">Date:</span> {formData.date}</p>
-                  <p><span className="font-semibold">Time:</span> {formData.time}</p>
+                  <p>
+                    <span className="font-semibold">Branch:</span>{" "}
+                    {getBranchName(formData.branch)}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Service:</span>{" "}
+                    {formData.service}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-gray-50/50 rounded-xl p-6 border border-gray-100">
+                <h5 className="font-bold text-lg mb-4 text-gray-900">
+                  Appointment Details
+                </h5>
+                <div className="space-y-2 text-gray-700">
+                  <p>
+                    <span className="font-semibold">Date:</span> {formData.date}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Time:</span> {formData.time}
+                  </p>
                 </div>
               </div>
 
               {formData.notes && (
-                <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
-                  <h5 className="font-bold text-lg mb-4 text-gray-900">Additional Notes</h5>
+                <div className="bg-gray-50/50 rounded-xl p-6 border border-gray-100">
+                  <h5 className="font-bold text-lg mb-4 text-gray-900">
+                    Additional Notes
+                  </h5>
                   <p className="text-gray-700">{formData.notes}</p>
                 </div>
               )}
@@ -343,37 +494,58 @@ export default function BookingForm({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex gap-4 pt-8 mt-8 border-t-2 border-gray-100">
+      <div className="flex gap-4 pt-8 mt-8 border-t border-gray-100">
         {currentStep > 1 && (
           <button
             onClick={prevStep}
             disabled={loading}
-            className="flex items-center gap-2 px-6 py-4 bg-gray-100 border-2 border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all disabled:opacity-50"
+            className="group/btn relative overflow-hidden transition-all duration-500 disabled:opacity-50"
           >
-            <ArrowLeft className="w-5 h-5" />
-            Previous
+            <div className="relative px-6 py-4 bg-white border-2 border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+              <div className="relative z-10 flex items-center gap-2">
+                <ArrowLeft className="w-5 h-5 text-gray-600 group-hover/btn:text-gray-900 transition-colors duration-500" />
+                <span className="text-sm font-semibold text-gray-700 group-hover/btn:text-gray-900 transition-colors duration-500">
+                  Previous
+                </span>
+              </div>
+            </div>
           </button>
         )}
 
         <div className="flex-1" />
 
-        {currentStep < 4 ? (
+        {currentStep < 5 ? (
           <button
             onClick={nextStep}
             disabled={!canProceed()}
-            className="flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed shadow-lg"
+            className="group/btn relative overflow-hidden transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Next
-            <ArrowRight className="w-5 h-5" />
+            <div className="relative px-8 py-4 bg-white border-2 border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-[#0056A3]/10">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#0056A3] to-[#009846] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+              <div className="relative z-10 flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-700 group-hover/btn:text-white transition-colors duration-500">
+                  Next
+                </span>
+                <ArrowRight className="w-5 h-5 text-gray-600 group-hover/btn:text-white transition-colors duration-500" />
+              </div>
+            </div>
           </button>
         ) : (
           <button
             onClick={onSubmit}
             disabled={loading}
-            className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-bold hover:from-green-600 hover:to-green-700 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 shadow-lg"
+            className="group/btn relative overflow-hidden transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Creating Booking..." : "Confirm Booking"}
-            <Check className="w-5 h-5" />
+            <div className="relative px-8 py-4 bg-white border-2 border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-[#009846]/10">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#009846] to-[#009846]/80 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+              <div className="relative z-10 flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-700 group-hover/btn:text-white transition-colors duration-500">
+                  {loading ? "Creating Booking..." : "Confirm Booking"}
+                </span>
+                <Check className="w-5 h-5 text-gray-600 group-hover/btn:text-white transition-colors duration-500" />
+              </div>
+            </div>
           </button>
         )}
       </div>

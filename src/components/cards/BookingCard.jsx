@@ -1,128 +1,272 @@
-// src/components/BookingCard.jsx
-import React from 'react';
-import { User, Mail, Phone, Calendar, Clock, CheckCircle, XCircle } from 'lucide-react';
+import React from "react";
+import {
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Briefcase,
+  FileText,
+  Trash2,
+  MapPin,
+} from "lucide-react";
 
-const BookingCard = ({ 
-  booking, 
-  onCancel, 
-  onConfirm, 
-  onSetPending, 
-  onDelete, 
+const BookingCard = ({
+  booking,
+  onCancel,
+  onConfirm,
+  onSetPending,
+  onDelete,
   loading,
-  isAdmin = false 
+  isAdmin = false,
 }) => {
-  const statusColors = {
-    pending: {
-      dot: 'bg-yellow-400',
-      badge: 'bg-yellow-100 text-yellow-800'
-    },
-    confirmed: {
-      dot: 'bg-green-400',
-      badge: 'bg-green-100 text-green-800'
-    },
-    cancelled: {
-      dot: 'bg-red-400',
-      badge: 'bg-red-100 text-red-800'
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "pending":
+        return "text-[#0056A3] bg-[#0056A3]/10 border-[#0056A3]/20";
+      case "confirmed":
+        return "text-[#009846] bg-[#009846]/10 border-[#009846]/20";
+      case "cancelled":
+        return "text-gray-400 bg-gray-50 border-gray-200";
+      default:
+        return "text-gray-400 bg-gray-50 border-gray-200";
     }
   };
 
-  const status = statusColors[booking.status] || statusColors.pending;
+  const getBranchName = (branchId) => {
+    const branches = {
+      villasis: "Villasis, Pangasinan",
+      carmen: "Carmen, Rosales, Pangasinan",
+    };
+    return branches[branchId] || branchId;
+  };
+
+  const isCancelled = booking.status === "cancelled";
 
   return (
-    <div className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center space-x-3">
-          <div className={`w-3 h-3 rounded-full ${status.dot}`} />
-          <span className="font-semibold text-gray-800 capitalize">{booking.service}</span>
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${status.badge}`}>
-            {booking.status}
-          </span>
-        </div>
-      </div>
-
-      <div className={`grid ${isAdmin ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-4 text-sm ${isAdmin ? 'mb-4' : ''}`}>
-        <div className="flex items-center space-x-2 text-gray-600">
-          <User className="w-4 h-4" />
-          <span>{booking.name}</span>
-        </div>
-        <div className="flex items-center space-x-2 text-gray-600">
-          <Mail className="w-4 h-4" />
-          <span>{booking.email}</span>
-        </div>
-        <div className="flex items-center space-x-2 text-gray-600">
-          <Phone className="w-4 h-4" />
-          <span>{booking.phone}</span>
-        </div>
-        <div className="flex items-center space-x-2 text-gray-600">
-          <Calendar className="w-4 h-4" />
-          <span>{booking.date}</span>
-        </div>
-        <div className="flex items-center space-x-2 text-gray-600">
-          <Clock className="w-4 h-4" />
-          <span>{booking.time}</span>
-        </div>
-      </div>
-
-      {booking.notes && (
-        <div className={`${isAdmin ? 'mb-4' : 'mt-4'} p-3 ${isAdmin ? 'bg-gray-50' : 'pt-4 border-t border-gray-100'} rounded-lg`}>
-          <p className="text-sm text-gray-600">{booking.notes}</p>
-        </div>
-      )}
-
-      {isAdmin ? (
-        <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100">
-          {booking.status !== 'confirmed' && (
-            <button
-              onClick={() => onConfirm(booking.id)}
-              disabled={loading}
-              className="flex items-center space-x-1 px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium disabled:opacity-50"
-            >
-              <CheckCircle className="w-4 h-4" />
-              <span>Confirm</span>
-            </button>
-          )}
-          {booking.status !== 'pending' && (
-            <button
-              onClick={() => onSetPending(booking.id)}
-              disabled={loading}
-              className="flex items-center space-x-1 px-3 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors text-sm font-medium disabled:opacity-50"
-            >
-              <Clock className="w-4 h-4" />
-              <span>Set Pending</span>
-            </button>
-          )}
-          {booking.status !== 'cancelled' && (
-            <button
-              onClick={() => onCancel(booking.id)}
-              disabled={loading}
-              className="flex items-center space-x-1 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium disabled:opacity-50"
-            >
-              <XCircle className="w-4 h-4" />
-              <span>Cancel</span>
-            </button>
-          )}
-          <button
-            onClick={() => onDelete(booking.id)}
-            disabled={loading}
-            className="flex items-center space-x-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium disabled:opacity-50 ml-auto"
+    <div
+      className={`group relative bg-white rounded-2xl border transition-all duration-300 ${
+        isCancelled
+          ? "border-gray-200 opacity-60"
+          : "border-gray-100 hover:border-gray-200 hover:shadow-xl hover:shadow-gray-100"
+      }`}
+    >
+      <div className="relative p-8">
+        {/* Header with name and status */}
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex-1 min-w-0">
+            <h4 className="text-xl font-semibold text-gray-900 mb-2 tracking-tight">
+              {booking.name}
+            </h4>
+            <div className="flex items-center gap-2 text-gray-500">
+              <Mail className="w-4 h-4 flex-shrink-0" />
+              <span className="text-sm truncate">{booking.email}</span>
+            </div>
+          </div>
+          <div
+            className={`ml-4 flex-shrink-0 text-xs font-bold tracking-[0.15em] uppercase px-4 py-2 rounded-xl border ${getStatusStyle(
+              booking.status
+            )}`}
           >
-            <XCircle className="w-4 h-4" />
-            <span>Delete</span>
-          </button>
+            {booking.status}
+          </div>
         </div>
-      ) : (
-        booking.status === 'pending' && (
-          <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+
+        {/* Info grid */}
+        <div className="space-y-4 mb-6">
+          {/* Branch */}
+          {booking.branch && (
+            <div className="flex items-center gap-4 p-3 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100">
+              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                <MapPin className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs uppercase tracking-[0.1em] text-purple-600 font-semibold mb-1">
+                  Branch Location
+                </p>
+                <p className="text-base text-gray-900 font-medium">
+                  {getBranchName(booking.branch)}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Phone */}
+          <div className="flex items-center gap-4 p-3 rounded-xl bg-gray-50/50 border border-gray-100">
+            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-[#0056A3] to-[#0056A3]/80 flex items-center justify-center">
+              <Phone className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase tracking-[0.1em] text-gray-500 font-semibold mb-1">
+                Phone
+              </p>
+              <p className="text-base text-gray-900 font-medium">
+                {booking.phone}
+              </p>
+            </div>
+          </div>
+
+          {/* Service */}
+          <div className="flex items-center gap-4 p-3 rounded-xl bg-gray-50/50 border border-gray-100">
+            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-[#009846] to-[#009846]/80 flex items-center justify-center">
+              <Briefcase className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase tracking-[0.1em] text-gray-500 font-semibold mb-1">
+                Service
+              </p>
+              <p className="text-base text-gray-900 font-medium capitalize">
+                {booking.service}
+              </p>
+            </div>
+          </div>
+
+          {/* Date & Time */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/50 border border-gray-100">
+              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-[#0056A3] to-[#0056A3]/80 flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs uppercase tracking-[0.1em] text-gray-500 font-semibold mb-1">
+                  Date
+                </p>
+                <p className="text-sm text-gray-900 font-medium">
+                  {booking.date}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/50 border border-gray-100">
+              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-[#009846] to-[#009846]/80 flex items-center justify-center">
+                <Clock className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs uppercase tracking-[0.1em] text-gray-500 font-semibold mb-1">
+                  Time
+                </p>
+                <p className="text-sm text-gray-900 font-medium">
+                  {booking.time}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Notes section */}
+        {booking.notes && (
+          <div className="mb-6 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="w-4 h-4 text-[#0056A3]" />
+              <p className="text-xs uppercase tracking-[0.1em] text-[#0056A3] font-bold">
+                Notes
+              </p>
+            </div>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {booking.notes}
+            </p>
+          </div>
+        )}
+
+        {/* Admin Action Buttons */}
+        {isAdmin ? (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              {/* Confirm Button */}
+              {booking.status !== "confirmed" && (
+                <button
+                  onClick={() => onConfirm(booking.id)}
+                  disabled={loading}
+                  className="group/btn relative overflow-hidden transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="relative px-4 py-3 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-green-500/10">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#009846] to-[#009846]/80 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                    <div className="relative z-10 flex items-center justify-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-[#009846] group-hover/btn:text-white transition-colors duration-500" />
+                      <span className="text-sm font-semibold tracking-wide text-gray-700 group-hover/btn:text-white transition-colors duration-500">
+                        Confirm
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              )}
+
+              {/* Set Pending Button */}
+              {booking.status !== "pending" && (
+                <button
+                  onClick={() => onSetPending(booking.id)}
+                  disabled={loading}
+                  className="group/btn relative overflow-hidden transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="relative px-4 py-3 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-blue-500/10">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#0056A3] to-[#0056A3]/80 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                    <div className="relative z-10 flex items-center justify-center gap-2">
+                      <Clock className="w-4 h-4 text-[#0056A3] group-hover/btn:text-white transition-colors duration-500" />
+                      <span className="text-sm font-semibold tracking-wide text-gray-700 group-hover/btn:text-white transition-colors duration-500">
+                        Pending
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              )}
+
+              {/* Cancel Button */}
+              {booking.status !== "cancelled" && (
+                <button
+                  onClick={() => onCancel(booking.id)}
+                  disabled={loading}
+                  className="group/btn relative overflow-hidden transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="relative px-4 py-3 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-red-500/10">
+                    <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-red-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                    <div className="relative z-10 flex items-center justify-center gap-2">
+                      <XCircle className="w-4 h-4 text-red-500 group-hover/btn:text-white transition-colors duration-500" />
+                      <span className="text-sm font-semibold tracking-wide text-gray-700 group-hover/btn:text-white transition-colors duration-500">
+                        Cancel
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              )}
+            </div>
+
+            {/* Delete Button - Full Width */}
             <button
-              onClick={() => onCancel(booking.id)}
+              onClick={() => onDelete(booking.id)}
               disabled={loading}
-              className="text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50"
+              className="group/btn relative w-full overflow-hidden transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Cancel
+              <div className="relative px-4 py-3 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-gray-500/10">
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-700 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                <div className="relative z-10 flex items-center justify-center gap-2">
+                  <Trash2 className="w-4 h-4 text-gray-600 group-hover/btn:text-white transition-colors duration-500" />
+                  <span className="text-sm font-semibold tracking-wide text-gray-700 group-hover/btn:text-white transition-colors duration-500">
+                    Delete Permanently
+                  </span>
+                </div>
+              </div>
             </button>
           </div>
-        )
-      )}
+        ) : (
+          // User Cancel Button
+          booking.status === "pending" && (
+            <button
+              onClick={() => onCancel(booking.id)}
+              disabled={loading}
+              className="group/btn relative w-full overflow-hidden transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="relative px-6 py-3.5 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-red-500/10">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-red-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                <span className="relative z-10 text-sm font-semibold tracking-[0.15em] uppercase text-gray-700 group-hover/btn:text-white transition-colors duration-500">
+                  {loading ? "Processing..." : "Cancel Appointment"}
+                </span>
+              </div>
+            </button>
+          )
+        )}
+      </div>
     </div>
   );
 };

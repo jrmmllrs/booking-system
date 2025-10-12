@@ -17,7 +17,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-import { Video, CreditCard, Shield } from "lucide-react";
+import { Video, CreditCard, Shield, Plus } from "lucide-react";
 
 // Import new modern components
 import Navbar from "../components/landingpage/Navbar";
@@ -395,7 +395,7 @@ const DentalClinicWebsite = () => {
 
   // Dashboard - Show when logged in
   return (
- <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50">
+    <div className="min-h-screen bg-white">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         {/* Hide header when adding new booking */}
         {!showBookingForm && (
@@ -408,20 +408,18 @@ const DentalClinicWebsite = () => {
         {!showBookingForm && (
           <button
             onClick={() => setShowBookingForm(true)}
-            className="group relative w-full max-w-4xl mx-auto block py-3.5 text-sm font-semibold tracking-widest uppercase rounded-xl overflow-hidden transition-all duration-300 mb-12"
+            className="group relative w-full max-w-md mx-auto block overflow-hidden transition-all duration-500 mb-12"
           >
-            {/* Elegant border effect */}
-            <span className="absolute inset-0 bg-gradient-to-br from-[#0056A3]/10 via-[#009846]/10 to-white p-px rounded-xl">
-              <span className="block h-full w-full bg-white rounded-xl group-hover:bg-gradient-to-br group-hover:from-[#0056A3]/5 group-hover:to-[#009846]/5 transition-all duration-300"></span>
-            </span>
+            <div className="relative px-8 py-4 bg-white border border-gray-200 rounded-2xl transition-all duration-500 group-hover:border-transparent group-hover:shadow-2xl group-hover:shadow-[#0056A3]/10">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#0056A3] to-[#009846] opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
 
-            {/* Button text */}
-            <span className="relative z-10 text-[#0056A3] group-hover:text-white transition-all duration-300">
-              + New Booking
-            </span>
-
-            {/* Hover fill animation */}
-            <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#0056A3] to-[#009846] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+              <div className="relative flex items-center justify-center gap-3">
+                <Plus className="w-5 h-5 text-[#0056A3] group-hover:text-white transition-colors duration-500 group-hover:rotate-180" />
+                <span className="text-sm font-semibold tracking-[0.2em] uppercase text-[#0056A3] group-hover:text-white transition-colors duration-500">
+                  New Booking
+                </span>
+              </div>
+            </div>
           </button>
         )}
 
