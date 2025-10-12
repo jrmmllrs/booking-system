@@ -3,7 +3,7 @@ import { User, LogOut } from "lucide-react";
 
 const DashboardHeader = ({ user, onLogout }) => {
   return (
-    <div className="max-w-4xl mx-auto mb-8">
+    <div className="w-full mb-8">
       <div className="group relative bg-gradient-to-br from-gray-50 to-white rounded-2xl overflow-hidden">
         {/* Elegant gradient border effect */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#0056A3]/10 via-[#009846]/5 to-white p-px rounded-2xl">

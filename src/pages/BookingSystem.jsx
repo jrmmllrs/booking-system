@@ -395,8 +395,8 @@ const DentalClinicWebsite = () => {
 
   // Dashboard - Show when logged in
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 p-4">
-      <div className="max-w-6xl mx-auto">
+ <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         {/* Hide header when adding new booking */}
         {!showBookingForm && (
           <DashboardHeader user={user} onLogout={handleLogout} />
