@@ -83,26 +83,42 @@ export default function BookingModal({
     setTimeout(onClose, 300);
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      await addDoc(collection(db, "contacts"), {
+      const bookingData = {
         name: formData.name,
         email: formData.email,
+        phone: formData.phone,
+        service: formData.service,
+        branch: formData.branch,
+        date: formData.date,
+        time: formData.time,
         message: `Booking Request\n\nService: ${formData.service}\nBranch: ${formData.branch}\nDate: ${formData.date}\nTime: ${formData.time}\nPhone: ${formData.phone}`,
         status: "unread",
         createdAt: serverTimestamp(),
         type: "booking",
-      });
+      };
+
+      await addDoc(collection(db, "contacts"), bookingData);
+
+      // Store booking confirmation in sessionStorage to prevent login prompts
+      sessionStorage.setItem('lastBooking', JSON.stringify({
+        name: formData.name,
+        service: formData.service,
+        date: formData.date,
+        time: formData.time,
+        timestamp: Date.now()
+      }));
 
       setSubmitted(true);
       onSuccess(formData);
       setTimeout(() => {
         handleClose();
-      }, 2000);
+      }, 2500);
     } catch (err) {
       console.error("Error submitting booking:", err);
       setError("Failed to submit booking. Please try again.");

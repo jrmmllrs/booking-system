@@ -8,13 +8,33 @@ import {
   User,
   Send,
   Eye,
+  Calendar,
+  Phone,
+  MapPin,
+  Briefcase,
 } from "lucide-react";
 
-const ContactCard = ({ contact, onMarkAsRead, onDelete }) => {
+const ContactCard = ({
+  contact,
+  onMarkAsRead,
+  onDelete,
+  onTransferToBooking,
+}) => {
   const [showReplyModal, setShowReplyModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const [replyMessage, setReplyMessage] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState("");
+
+  // Transfer to booking form state
+  const [transferData, setTransferData] = useState({
+    phone: "",
+    service: "consultation",
+    branch: "villasis",
+    date: "",
+    time: "",
+    notes: "",
+  });
 
   const emailTemplates = {
     general: `Dear ${contact.name},
@@ -61,7 +81,17 @@ Diego Dental Clinic`,
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      hour12: true,
     });
+  };
+
+  const convert24to12 = (time24) => {
+    if (!time24) return "";
+    const [hours, minutes] = time24.split(":");
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
   };
 
   const handleTemplateSelect = (templateKey) => {
@@ -104,7 +134,53 @@ Diego Dental Clinic`,
     }
   };
 
+  const handleTransferSubmit = () => {
+    if (!transferData.phone || !transferData.date || !transferData.time) {
+      return;
+    }
+
+    const bookingData = {
+      name: contact.name,
+      email: contact.email,
+      phone: transferData.phone,
+      service: transferData.service,
+      branch: transferData.branch,
+      date: transferData.date,
+      time: convert24to12(transferData.time),
+      notes:
+        transferData.notes ||
+        `Transferred from contact inquiry: ${contact.message}`,
+      contactId: contact.id,
+    };
+
+    onTransferToBooking(bookingData);
+
+    // Reset form
+    setShowTransferModal(false);
+    setTransferData({
+      phone: "",
+      service: "consultation",
+      branch: "villasis",
+      date: "",
+      time: "",
+      notes: "",
+    });
+  };
+
+  const resetTransferForm = () => {
+    setShowTransferModal(false);
+    setTransferData({
+      phone: "",
+      service: "consultation",
+      branch: "villasis",
+      date: "",
+      time: "",
+      notes: "",
+    });
+  };
+
   const isUnread = contact.status === "unread";
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <>
@@ -170,6 +246,17 @@ Diego Dental Clinic`,
                 <div className="relative p-2.5 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-[#009846]/10">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#009846] to-[#009846]/80 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
                   <Send className="relative z-10 w-4 h-4 text-gray-600 group-hover/btn:text-white transition-colors duration-500" />
+                </div>
+              </button>
+
+              <button
+                onClick={() => setShowTransferModal(true)}
+                className="group/btn relative overflow-hidden transition-all duration-500"
+                title="Transfer to Booking"
+              >
+                <div className="relative p-2.5 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-purple-500/10">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                  <Calendar className="relative z-10 w-4 h-4 text-gray-600 group-hover/btn:text-white transition-colors duration-500" />
                 </div>
               </button>
 
@@ -324,6 +411,246 @@ Diego Dental Clinic`,
                     <Send className="w-4 h-4 text-[#0056A3] group-hover/btn:text-white transition-colors duration-500" />
                     <span className="text-sm font-semibold tracking-wide text-gray-700 group-hover/btn:text-white transition-colors duration-500">
                       Reply
+                    </span>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transfer to Booking Modal */}
+      {showTransferModal && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={resetTransferForm}
+        >
+          <div
+            className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="relative px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-purple-500/5 to-pink-500/5">
+              <button
+                onClick={resetTransferForm}
+                className="absolute right-6 top-6 p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-xl transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <h3 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">
+                Transfer to Booking
+              </h3>
+              <p className="text-sm text-gray-500">
+                Convert this contact inquiry into a booking
+              </p>
+            </div>
+
+            {/* Content */}
+            <div className="p-8 space-y-6 overflow-y-auto max-h-[calc(90vh-220px)]">
+              {/* Contact Info Display */}
+              <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <User className="w-4 h-4 text-purple-600" />
+                  <p className="text-xs uppercase tracking-[0.1em] text-purple-600 font-bold">
+                    Contact Information
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold">Name:</span> {contact.name}
+                  </p>
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold">Email:</span>{" "}
+                    {contact.email}
+                  </p>
+                </div>
+              </div>
+
+              {/* Original Message */}
+              <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <FileText className="w-4 h-4 text-[#0056A3]" />
+                  <p className="text-xs uppercase tracking-[0.1em] text-[#0056A3] font-bold">
+                    Original Message
+                  </p>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {contact.message}
+                </p>
+              </div>
+
+              {/* Booking Form */}
+              <div className="space-y-4">
+                {/* Phone Number */}
+                <div>
+                  <label className="block text-xs uppercase tracking-[0.1em] text-gray-600 font-bold mb-2">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="tel"
+                      value={transferData.phone}
+                      onChange={(e) =>
+                        setTransferData({
+                          ...transferData,
+                          phone: e.target.value,
+                        })
+                      }
+                      placeholder="Enter phone number"
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Branch */}
+                <div>
+                  <label className="block text-xs uppercase tracking-[0.1em] text-gray-600 font-bold mb-2">
+                    Branch <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <select
+                      value={transferData.branch}
+                      onChange={(e) =>
+                        setTransferData({
+                          ...transferData,
+                          branch: e.target.value,
+                        })
+                      }
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm appearance-none"
+                      required
+                    >
+                      <option value="villasis">Villasis, Pangasinan</option>
+                      <option value="carmen">
+                        Carmen, Rosales, Pangasinan
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Service */}
+                <div>
+                  <label className="block text-xs uppercase tracking-[0.1em] text-gray-600 font-bold mb-2">
+                    Service <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <select
+                      value={transferData.service}
+                      onChange={(e) =>
+                        setTransferData({
+                          ...transferData,
+                          service: e.target.value,
+                        })
+                      }
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm appearance-none"
+                      required
+                    >
+                      <option value="consultation">Consultation</option>
+                      <option value="cleaning">Cleaning</option>
+                      <option value="filling">Filling</option>
+                      <option value="extraction">Extraction</option>
+                      <option value="root-canal">Root Canal</option>
+                      <option value="braces">Braces</option>
+                      <option value="whitening">Whitening</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Date and Time */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.1em] text-gray-600 font-bold mb-2">
+                      Date <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={transferData.date}
+                      onChange={(e) =>
+                        setTransferData({
+                          ...transferData,
+                          date: e.target.value,
+                        })
+                      }
+                      min={today}
+                      className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.1em] text-gray-600 font-bold mb-2">
+                      Time <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="time"
+                      value={transferData.time}
+                      onChange={(e) =>
+                        setTransferData({
+                          ...transferData,
+                          time: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label className="block text-xs uppercase tracking-[0.1em] text-gray-600 font-bold mb-2">
+                    Additional Notes
+                  </label>
+                  <textarea
+                    value={transferData.notes}
+                    onChange={(e) =>
+                      setTransferData({
+                        ...transferData,
+                        notes: e.target.value,
+                      })
+                    }
+                    rows="4"
+                    placeholder="Add any additional notes for this booking..."
+                    className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-sm transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex gap-3">
+              <button
+                onClick={resetTransferForm}
+                className="group/btn relative overflow-hidden flex-1 transition-all duration-500"
+              >
+                <div className="relative px-6 py-3.5 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg">
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                  <span className="relative z-10 text-sm font-semibold tracking-wide text-gray-700 group-hover/btn:text-gray-900 transition-colors duration-500">
+                    Cancel
+                  </span>
+                </div>
+              </button>
+
+              <button
+                onClick={handleTransferSubmit}
+                disabled={
+                  !transferData.phone ||
+                  !transferData.date ||
+                  !transferData.time
+                }
+                className="group/btn relative overflow-hidden flex-1 transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="relative px-6 py-3.5 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-purple-500/10">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                  <div className="relative z-10 flex items-center justify-center gap-2">
+                    <Calendar className="w-4 h-4 text-purple-600 group-hover/btn:text-white transition-colors duration-500" />
+                    <span className="text-sm font-semibold tracking-wide text-gray-700 group-hover/btn:text-white transition-colors duration-500">
+                      Confirm & Create Booking
                     </span>
                   </div>
                 </div>

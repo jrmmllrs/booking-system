@@ -1,6 +1,14 @@
 // src/pages/AdminDashboard.jsx
 import React, { useState, useEffect } from "react";
-import { Calendar, User, LogOut, Filter, Mail, MapPin } from "lucide-react";
+import {
+  Calendar,
+  User,
+  LogOut,
+  Filter,
+  Mail,
+  MapPin,
+  CheckCircle2,
+} from "lucide-react";
 import { auth, db } from "../firebase";
 import {
   signInWithEmailAndPassword,
@@ -16,6 +24,7 @@ import {
   serverTimestamp,
   query,
   orderBy,
+  addDoc,
 } from "firebase/firestore";
 import { ADMIN_EMAILS } from "../constants";
 import LoadingSpinner from "../components/common/LoadingSpinner";
@@ -50,6 +59,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   // Auth Effect
   useEffect(() => {
@@ -78,6 +88,21 @@ const AdminDashboard = () => {
       loadAllContacts();
     }
   }, [user]);
+
+  // Auto-clear messages
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => setSuccessMessage(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   // Data Loading Functions
   const loadAllBookings = async () => {
@@ -166,7 +191,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // Booking Handlers - UPDATED to handle cancellation reason
+  // Booking Handlers
   const updateBookingStatus = async (id, newStatus) => {
     setLoading(true);
     setError("");
@@ -177,6 +202,7 @@ const AdminDashboard = () => {
         updatedAt: serverTimestamp(),
       });
       await loadAllBookings();
+      setSuccessMessage(`Booking ${newStatus} successfully!`);
     } catch (err) {
       console.error("Error updating booking:", err);
       setError("Failed to update booking status");
@@ -185,7 +211,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // NEW: Separate handler for cancellation with reason
   const handleCancelBooking = async (id, cancelReason) => {
     setLoading(true);
     setError("");
@@ -198,6 +223,7 @@ const AdminDashboard = () => {
         updatedAt: serverTimestamp(),
       });
       await loadAllBookings();
+      setSuccessMessage("Booking cancelled successfully!");
     } catch (err) {
       console.error("Error cancelling booking:", err);
       setError("Failed to cancel booking");
@@ -216,6 +242,7 @@ const AdminDashboard = () => {
     try {
       await deleteDoc(doc(db, "bookings", id));
       await loadAllBookings();
+      setSuccessMessage("Booking deleted successfully!");
     } catch (err) {
       console.error("Error deleting booking:", err);
       setError("Failed to delete booking");
@@ -245,9 +272,62 @@ const AdminDashboard = () => {
     try {
       await deleteDoc(doc(db, "contacts", id));
       await loadAllContacts();
+      setSuccessMessage("Contact message deleted successfully!");
     } catch (err) {
       console.error("Error deleting contact:", err);
       setError("Failed to delete contact message");
+    }
+  };
+
+  // NEW: Transfer Contact to Booking Handler
+  const handleTransferToBooking = async (bookingData) => {
+    setLoading(true);
+    setError("");
+    setSuccessMessage("");
+
+    try {
+      // Create new booking in Firebase
+      const bookingRef = await addDoc(collection(db, "bookings"), {
+        name: bookingData.name,
+        email: bookingData.email,
+        phone: bookingData.phone,
+        service: bookingData.service,
+        branch: bookingData.branch,
+        date: bookingData.date,
+        time: bookingData.time,
+        notes: bookingData.notes,
+        status: "pending",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        source: "contact-transfer", // Mark as transferred from contact
+        originalContactId: bookingData.contactId,
+      });
+
+      // Mark the original contact as read and add note about transfer
+      await updateDoc(doc(db, "contacts", bookingData.contactId), {
+        status: "read",
+        transferredToBooking: true,
+        bookingId: bookingRef.id,
+        updatedAt: serverTimestamp(),
+      });
+
+      // Reload both bookings and contacts
+      await loadAllBookings();
+      await loadAllContacts();
+
+      // Show success message and switch to bookings tab
+      setSuccessMessage(
+        `Successfully transferred contact to booking! Booking ID: ${bookingRef.id.slice(
+          0,
+          8
+        )}...`
+      );
+      setActiveTab("bookings");
+    } catch (err) {
+      console.error("Error transferring to booking:", err);
+      setError("Failed to transfer contact to booking. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -277,9 +357,10 @@ const AdminDashboard = () => {
   const handleRefresh = async () => {
     await loadAllBookings();
     await loadAllContacts();
+    setSuccessMessage("Data refreshed successfully!");
   };
 
-  // Stats Calculations - Updated to include branch filtering
+  // Stats Calculations
   const bookingStats = {
     total: bookings.length,
     pending: bookings.filter((b) => b.status === "pending").length,
@@ -295,7 +376,7 @@ const AdminDashboard = () => {
     read: contacts.filter((c) => c.status === "read").length,
   };
 
-  // Filtered Data - Updated to include branch filter
+  // Filtered Data
   const filteredBookings = bookings
     .filter((b) => statusFilter === "all" || b.status === statusFilter)
     .filter((b) => branchFilter === "all" || b.branch === branchFilter)
@@ -364,6 +445,16 @@ const AdminDashboard = () => {
             </button>
           </div>
         </div>
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+            <p className="text-green-800 text-sm font-medium">
+              {successMessage}
+            </p>
+          </div>
+        )}
 
         <ErrorAlert message={error} />
 
@@ -589,6 +680,7 @@ const AdminDashboard = () => {
                     contact={contact}
                     onMarkAsRead={markContactAsRead}
                     onDelete={deleteContact}
+                    onTransferToBooking={handleTransferToBooking}
                   />
                 ))
               )}

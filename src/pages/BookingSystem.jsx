@@ -189,34 +189,12 @@ const DentalClinicWebsite = () => {
     }
   };
 
-  const handleBookingSubmit = async (bookingData) => {
-    if (!user) {
-      setShowBookingModal(false);
-      setShowLoginModal(true);
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      const booking = {
-        ...bookingData,
-        userId: user.uid,
-        status: "pending",
-        createdAt: serverTimestamp(),
-      };
-
-      await addDoc(collection(db, "bookings"), booking);
-      await loadBookings();
-      setShowBookingModal(false);
-      alert("Appointment booked successfully! Check your dashboard.");
-    } catch (err) {
-      console.error("Error creating booking:", err);
-      setError("Failed to create booking");
-    } finally {
-      setLoading(false);
-    }
+  // UPDATED: Handle guest bookings without requiring login
+  const handleBookingSubmit = (data) => {
+    // Guest bookings are handled by the BookingModal component itself
+    // This function is called after successful submission
+    // Just close the modal - no need to process bookingData here
+    console.log("Booking submitted:", data);
   };
 
   const handleDashboardBooking = async () => {
@@ -433,7 +411,7 @@ const DentalClinicWebsite = () => {
             onSubmit={handleDashboardBooking}
             onCancel={() => setShowBookingForm(false)}
             loading={loading}
-            db={db} // ADD THIS LINE - Pass the db instance
+            db={db}
           />
         ) : (
           <BookingList
