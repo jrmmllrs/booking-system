@@ -1,5 +1,4 @@
 // src/constants.js
-export const ADMIN_EMAILS = [
-  'admin@homeserbase.com',
-  'jmillares0945@gmail.com'
-];
+export const ADMIN_EMAILS = import.meta.env.REACT_APP_ADMIN_EMAILS
+  ? import.meta.env.REACT_APP_ADMIN_EMAILS.split(",")
+  : [];

@@ -175,6 +175,14 @@ const TimeSlotDropdown = ({
     return d;
   };
 
+  const filteredSlots = slots.filter((slot) => {
+    const isBooked = bookedSlots.includes(slot);
+    if (!isToday) return !isBooked; // keep all for future days
+
+    const slotTime = parseTime(slot);
+    return !isBooked && slotTime > now; // only upcoming times today
+  });
+
   return (
     <div className="absolute z-10 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto">
       {loading ? (
@@ -183,38 +191,20 @@ const TimeSlotDropdown = ({
           <span className="text-sm">Loading available slots...</span>
         </div>
       ) : (
-        // ✅ filter out past slots
-        slots
-          .filter((slot) => {
-            const isBooked = bookedSlots.includes(slot);
-            const isToday =
-              formData?.date === new Date().toISOString().split("T")[0];
-
-            if (!isToday) return !isBooked; // keep all future-day slots
-            const now = new Date();
-            const [time, period] = slot.split(" ");
-            const [hours, minutes] = time.split(":").map(Number);
-            let h = hours % 12;
-            if (period === "PM") h += 12;
-            const slotTime = new Date();
-            slotTime.setHours(h, minutes || 0, 0, 0);
-
-            return !isBooked && slotTime > now; // ✅ show only upcoming, not past
-          })
-          .map((slot, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => onSelect(slot)}
-              className={`w-full text-left p-3 transition-colors ${
-                selected === slot
-                  ? "bg-[#0056A3]/10 font-semibold text-[#0056A3] hover:bg-[#0056A3]/15"
-                  : "hover:bg-[#0056A3]/5"
-              }`}
-            >
-              <span>{slot}</span>
-            </button>
-          ))
+        filteredSlots.map((slot, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => onSelect(slot)}
+            className={`w-full text-left p-3 transition-colors ${
+              selected === slot
+                ? "bg-[#0056A3]/10 font-semibold text-[#0056A3] hover:bg-[#0056A3]/15"
+                : "hover:bg-[#0056A3]/5"
+            }`}
+          >
+            <span>{slot}</span>
+          </button>
+        ))
       )}
     </div>
   );
