@@ -7,6 +7,7 @@ import {
   Mail,
   FileText,
   MapPin,
+  XCircle,
 } from "lucide-react";
 
 const BookingCard = ({ booking, onCancel, loading }) => {
@@ -154,6 +155,21 @@ const BookingCard = ({ booking, onCancel, loading }) => {
             </div>
             <p className="text-sm text-gray-700 leading-relaxed">
               {booking.notes}
+            </p>
+          </div>
+        )}
+
+        {/* Cancellation Reason - Only shown if cancelled and reason exists */}
+        {isCancelled && booking.cancellationReason && (
+          <div className="mb-6 p-4 bg-red-50/50 rounded-xl border border-red-100">
+            <div className="flex items-center gap-2 mb-2">
+              <XCircle className="w-4 h-4 text-red-500" />
+              <p className="text-xs uppercase tracking-[0.1em] text-red-600 font-bold">
+                Cancellation Reason
+              </p>
+            </div>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {booking.cancellationReason}
             </p>
           </div>
         )}

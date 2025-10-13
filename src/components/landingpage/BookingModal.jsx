@@ -13,6 +13,7 @@ export default function BookingModal({
     email: "",
     phone: "",
     service: "",
+    branch: "",
     date: "",
     time: "",
   });
@@ -59,7 +60,7 @@ export default function BookingModal({
       await addDoc(collection(db, "contacts"), {
         name: formData.name,
         email: formData.email,
-        message: `Booking Request\n\nService: ${formData.service}\nDate: ${formData.date}\nTime: ${formData.time}\nPhone: ${formData.phone}`,
+        message: `Booking Request\n\nService: ${formData.service}\nBranch: ${formData.branch}\nDate: ${formData.date}\nTime: ${formData.time}\nPhone: ${formData.phone}`,
         status: "unread",
         createdAt: serverTimestamp(),
         type: "booking",
@@ -117,6 +118,7 @@ export default function BookingModal({
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Full Name */}
             <input
               type="text"
               placeholder="Full Name"
@@ -124,15 +126,11 @@ export default function BookingModal({
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className={`w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-500 ${
-                isVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-4"
-              }`}
-              style={{ transitionDelay: "150ms" }}
+              className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500"
               required
             />
 
+            {/* Email */}
             <input
               type="email"
               placeholder="Email"
@@ -140,15 +138,11 @@ export default function BookingModal({
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              className={`w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-500 ${
-                isVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-4"
-              }`}
-              style={{ transitionDelay: "200ms" }}
+              className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500"
               required
             />
 
+            {/* Phone */}
             <input
               type="tel"
               placeholder="Phone Number"
@@ -156,26 +150,35 @@ export default function BookingModal({
               onChange={(e) =>
                 setFormData({ ...formData, phone: e.target.value })
               }
-              className={`w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-500 ${
-                isVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-4"
-              }`}
-              style={{ transitionDelay: "250ms" }}
+              className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500"
               required
             />
 
+            {/* Branch Selection */}
+            <select
+              value={formData.branch}
+              onChange={(e) =>
+                setFormData({ ...formData, branch: e.target.value })
+              }
+              className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Select Branch</option>
+              <option value="Villasis, Pangasinan">
+                Villasis, Pangasinan
+              </option>
+              <option value="Carmen, Rosales, Pangasinan">
+                Carmen, Rosales, Pangasinan
+              </option>
+            </select>
+
+            {/* Service Selection */}
             <select
               value={formData.service}
               onChange={(e) =>
                 setFormData({ ...formData, service: e.target.value })
               }
-              className={`w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-500 ${
-                isVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-4"
-              }`}
-              style={{ transitionDelay: "300ms" }}
+              className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500"
               required
             >
               <option value="">Select Service</option>
@@ -186,14 +189,8 @@ export default function BookingModal({
               ))}
             </select>
 
-            <div
-              className={`transition-all duration-500 ${
-                isVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-4"
-              }`}
-              style={{ transitionDelay: "350ms" }}
-            >
+            {/* Date Selection */}
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select Date
               </label>
@@ -209,14 +206,8 @@ export default function BookingModal({
               />
             </div>
 
-            <div
-              className={`transition-all duration-500 ${
-                isVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-4"
-              }`}
-              style={{ transitionDelay: "400ms" }}
-            >
+            {/* Time Selection */}
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select Time (8:00 AM - 4:30 PM)
               </label>
@@ -237,15 +228,11 @@ export default function BookingModal({
               </select>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className={`w-full bg-[#0056A3] text-white py-3.5 rounded-xl font-medium hover:bg-blue-700 transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 hover:shadow-lg ${
-                isVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-4"
-              }`}
-              style={{ transitionDelay: "450ms" }}
+              className="w-full bg-[#0056A3] text-white py-3.5 rounded-xl font-medium hover:bg-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 hover:shadow-lg"
             >
               {loading ? "Submitting..." : "Confirm Appointment"}
             </button>

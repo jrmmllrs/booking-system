@@ -1,9 +1,18 @@
-// src/components/admin/ContactCard.jsx
 import React, { useState } from "react";
-import { Mail, Trash2, Clock, X, FileText, User, Send } from "lucide-react";
+import {
+  Mail,
+  Trash2,
+  Clock,
+  X,
+  FileText,
+  User,
+  Send,
+  Eye,
+} from "lucide-react";
 
 const ContactCard = ({ contact, onMarkAsRead, onDelete }) => {
   const [showReplyModal, setShowReplyModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [replyMessage, setReplyMessage] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState("");
 
@@ -42,6 +51,19 @@ Diego Dental Clinic`,
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
+  const formatFullDate = (timestamp) => {
+    if (!timestamp) return "N/A";
+    const date = timestamp.toDate();
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   const handleTemplateSelect = (templateKey) => {
     setSelectedTemplate(templateKey);
     setReplyMessage(templateKey ? emailTemplates[templateKey] : "");
@@ -72,6 +94,16 @@ Diego Dental Clinic`,
     }, 500);
   };
 
+  const handleViewDetails = () => {
+    setShowDetailsModal(true);
+    // Auto-mark as read when viewing details
+    if (contact.status === "unread") {
+      setTimeout(() => {
+        onMarkAsRead(contact.id);
+      }, 300);
+    }
+  };
+
   const isUnread = contact.status === "unread";
 
   return (
@@ -83,9 +115,19 @@ Diego Dental Clinic`,
             : "border-gray-100 hover:border-gray-200 hover:shadow-xl hover:shadow-gray-100"
         }`}
       >
+        {/* Unread Indicator - Red Dot */}
+        {isUnread && (
+          <div className="absolute -top-2 -right-2 z-10">
+            <div className="relative">
+              <div className="w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow-lg"></div>
+              <div className="absolute inset-0 w-4 h-4 bg-red-500 rounded-full animate-ping opacity-75"></div>
+            </div>
+          </div>
+        )}
+
         {/* Unread Indicator Bar */}
         {isUnread && (
-          <div className="absolute -left-1 top-8 w-1 h-16 bg-gradient-to-b from-[#0056A3] to-[#009846] rounded-r-full" />
+          <div className="absolute -left-1 top-8 w-1 h-16 bg-gradient-to-b from-red-500 to-orange-500 rounded-r-full" />
         )}
 
         <div className="p-8">
@@ -97,7 +139,7 @@ Diego Dental Clinic`,
                   {contact.name}
                 </h4>
                 {isUnread && (
-                  <span className="flex-shrink-0 text-xs font-bold tracking-[0.15em] uppercase px-3 py-1.5 rounded-xl bg-[#0056A3]/10 text-[#0056A3] border border-[#0056A3]/20">
+                  <span className="flex-shrink-0 text-xs font-bold tracking-[0.15em] uppercase px-3 py-1.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20">
                     New
                   </span>
                 )}
@@ -109,6 +151,17 @@ Diego Dental Clinic`,
             </div>
 
             <div className="flex items-center gap-2 ml-4">
+              <button
+                onClick={handleViewDetails}
+                className="group/btn relative overflow-hidden transition-all duration-500"
+                title="View Details"
+              >
+                <div className="relative p-2.5 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-[#0056A3]/10">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#0056A3] to-[#0056A3]/80 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                  <Eye className="relative z-10 w-4 h-4 text-gray-600 group-hover/btn:text-white transition-colors duration-500" />
+                </div>
+              </button>
+
               <button
                 onClick={() => setShowReplyModal(true)}
                 className="group/btn relative overflow-hidden transition-all duration-500"
@@ -133,15 +186,15 @@ Diego Dental Clinic`,
             </div>
           </div>
 
-          {/* Message */}
+          {/* Message Preview */}
           <div className="mb-4 p-4 bg-gray-50/50 rounded-xl border border-gray-100">
             <div className="flex items-center gap-2 mb-2">
               <FileText className="w-4 h-4 text-[#0056A3]" />
               <p className="text-xs uppercase tracking-[0.1em] text-[#0056A3] font-bold">
-                Message
+                Message Preview
               </p>
             </div>
-            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+            <p className="text-sm text-gray-700 leading-relaxed line-clamp-2">
               {contact.message}
             </p>
           </div>
@@ -152,17 +205,133 @@ Diego Dental Clinic`,
               <Clock className="w-4 h-4" />
               <span>{formatDate(contact.createdAt)}</span>
             </div>
-            {isUnread && (
-              <button
-                onClick={() => onMarkAsRead(contact.id)}
-                className="text-sm font-semibold text-[#0056A3] hover:text-[#009846] transition-colors"
-              >
-                Mark as read
-              </button>
-            )}
+            <button
+              onClick={handleViewDetails}
+              className="text-sm font-semibold text-[#0056A3] hover:text-[#009846] transition-colors"
+            >
+              View full message
+            </button>
           </div>
         </div>
       </div>
+
+      {/* View Details Modal */}
+      {showDetailsModal && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowDetailsModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="relative px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-[#0056A3]/5 to-[#009846]/5">
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                className="absolute right-6 top-6 p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-xl transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <h3 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">
+                Message Details
+              </h3>
+              <p className="text-sm text-gray-500">
+                Automatically marked as read
+              </p>
+            </div>
+
+            {/* Content */}
+            <div className="p-8 space-y-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+              {/* Contact Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-gradient-to-br from-[#0056A3]/5 to-[#0056A3]/10 rounded-xl border border-[#0056A3]/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="w-4 h-4 text-[#0056A3]" />
+                    <p className="text-xs uppercase tracking-[0.1em] text-[#0056A3] font-bold">
+                      Name
+                    </p>
+                  </div>
+                  <p className="text-base text-gray-900 font-medium">
+                    {contact.name}
+                  </p>
+                </div>
+
+                <div className="p-4 bg-gradient-to-br from-[#009846]/5 to-[#009846]/10 rounded-xl border border-[#009846]/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Mail className="w-4 h-4 text-[#009846]" />
+                    <p className="text-xs uppercase tracking-[0.1em] text-[#009846] font-bold">
+                      Email
+                    </p>
+                  </div>
+                  <p className="text-sm text-gray-900 font-medium break-all">
+                    {contact.email}
+                  </p>
+                </div>
+              </div>
+
+              {/* Timestamp */}
+              <div className="p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="w-4 h-4 text-gray-600" />
+                  <p className="text-xs uppercase tracking-[0.1em] text-gray-600 font-bold">
+                    Received On
+                  </p>
+                </div>
+                <p className="text-base text-gray-900 font-medium">
+                  {formatFullDate(contact.createdAt)}
+                </p>
+              </div>
+
+              {/* Full Message */}
+              <div className="p-6 bg-blue-50/50 rounded-xl border border-blue-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <FileText className="w-5 h-5 text-[#0056A3]" />
+                  <p className="text-sm uppercase tracking-[0.1em] text-[#0056A3] font-bold">
+                    Full Message
+                  </p>
+                </div>
+                <p className="text-base text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {contact.message}
+                </p>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex gap-3">
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                className="group/btn relative overflow-hidden flex-1 transition-all duration-500"
+              >
+                <div className="relative px-6 py-3.5 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg">
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                  <span className="relative z-10 text-sm font-semibold tracking-wide text-gray-700 group-hover/btn:text-gray-900 transition-colors duration-500">
+                    Close
+                  </span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowDetailsModal(false);
+                  setShowReplyModal(true);
+                }}
+                className="group/btn relative overflow-hidden flex-1 transition-all duration-500"
+              >
+                <div className="relative px-6 py-3.5 bg-white border border-gray-200 rounded-xl transition-all duration-500 group-hover/btn:border-transparent group-hover/btn:shadow-lg group-hover/btn:shadow-[#009846]/10">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#0056A3] to-[#009846] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                  <div className="relative z-10 flex items-center justify-center gap-2">
+                    <Send className="w-4 h-4 text-[#0056A3] group-hover/btn:text-white transition-colors duration-500" />
+                    <span className="text-sm font-semibold tracking-wide text-gray-700 group-hover/btn:text-white transition-colors duration-500">
+                      Reply
+                    </span>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Reply Modal */}
       {showReplyModal && (

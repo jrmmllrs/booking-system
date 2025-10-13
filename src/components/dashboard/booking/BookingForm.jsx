@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   XCircle,
   Calendar,
@@ -11,6 +11,7 @@ import {
   Check,
   MapPin,
 } from "lucide-react";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 const PersonalInfoSection = ({ formData, onInputChange }) => (
   <div className="space-y-4">
@@ -148,25 +149,76 @@ const ServiceSelector = ({ selected, onChange }) => {
   );
 };
 
-const TimeSlotDropdown = ({ show, slots, selected, onSelect }) => {
+const TimeSlotDropdown = ({
+  show,
+  slots,
+  selected,
+  onSelect,
+  bookedSlots,
+  loading,
+  formData,
+}) => {
   if (!show) return null;
+
+  // Check if selected date is today
+  const isToday = formData?.date === new Date().toISOString().split("T")[0];
+  const now = new Date();
+
+  // Helper: Convert "8:30 AM" → Date object for today
+  const parseTime = (timeStr) => {
+    const [time, period] = timeStr.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
+    let h = hours % 12;
+    if (period === "PM") h += 12;
+    const d = new Date();
+    d.setHours(h, minutes || 0, 0, 0);
+    return d;
+  };
 
   return (
     <div className="absolute z-10 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto">
-      {slots.map((slot, idx) => (
-        <button
-          key={idx}
-          type="button"
-          onClick={() => onSelect(slot)}
-          className={`w-full text-left p-3 hover:bg-[#0056A3]/5 transition-colors ${
-            selected === slot
-              ? "bg-[#0056A3]/10 font-semibold text-[#0056A3]"
-              : ""
-          }`}
-        >
-          {slot}
-        </button>
-      ))}
+      {loading ? (
+        <div className="p-4 text-center text-gray-500">
+          <Clock className="w-5 h-5 mx-auto mb-2 animate-spin" />
+          <span className="text-sm">Loading available slots...</span>
+        </div>
+      ) : (
+        slots.map((slot, idx) => {
+          const isBooked = bookedSlots.includes(slot);
+          const isPast = isToday && parseTime(slot) < now; // 👈 disable past times today
+          const isDisabled = isBooked || isPast;
+
+          return (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => !isDisabled && onSelect(slot)}
+              disabled={isDisabled}
+              className={`w-full text-left p-3 transition-colors ${
+                isDisabled
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : selected === slot
+                  ? "bg-[#0056A3]/10 font-semibold text-[#0056A3] hover:bg-[#0056A3]/15"
+                  : "hover:bg-[#0056A3]/5"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className={isDisabled ? "line-through" : ""}>{slot}</span>
+                {isBooked && (
+                  <span className="text-xs text-red-500 font-semibold">
+                    Booked
+                  </span>
+                )}
+                {isPast && !isBooked && (
+                  <span className="text-xs text-gray-500 font-semibold">
+                    Past
+                  </span>
+                )}
+              </div>
+            </button>
+          );
+        })
+      )}
     </div>
   );
 };
@@ -177,9 +229,12 @@ export default function BookingForm({
   onSubmit,
   onCancel,
   loading,
+  db,
 }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [showTimeSlots, setShowTimeSlots] = useState(false);
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
   const minDate = new Date().toISOString().split("T")[0];
 
   const timeSlots = Array.from({ length: 17 }, (_, i) => {
@@ -189,6 +244,37 @@ export default function BookingForm({
     const displayH = h > 12 ? h - 12 : h;
     return `${displayH}:${m} ${period}`;
   });
+
+  // Fetch booked time slots when date or branch changes
+  useEffect(() => {
+    if (formData.date && formData.branch && db) {
+      fetchBookedSlots();
+    } else {
+      setBookedSlots([]);
+    }
+  }, [formData.date, formData.branch, db]);
+
+  const fetchBookedSlots = async () => {
+    setLoadingSlots(true);
+    try {
+      const bookingsRef = collection(db, "bookings");
+      const q = query(
+        bookingsRef,
+        where("date", "==", formData.date),
+        where("branch", "==", formData.branch),
+        where("status", "==", "confirmed")
+      );
+
+      const snapshot = await getDocs(q);
+      const bookedTimes = snapshot.docs.map((doc) => doc.data().time);
+      setBookedSlots(bookedTimes);
+    } catch (error) {
+      console.error("Error fetching booked slots:", error);
+      setBookedSlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
 
   const steps = [
     { number: 1, title: "Personal Info", icon: User },
@@ -227,6 +313,16 @@ export default function BookingForm({
       carmen: "Carmen, Rosales, Pangasinan Branch",
     };
     return branches[branchId] || branchId;
+  };
+
+  const getServiceName = (serviceId) => {
+    const services = {
+      consultation: "Consultation (30 min)",
+      checkup: "General Checkup (45 min)",
+      treatment: "Treatment (60 min)",
+      followup: "Follow-up (20 min)",
+    };
+    return services[serviceId] || serviceId;
   };
 
   return (
@@ -387,14 +483,21 @@ export default function BookingForm({
                 <button
                   type="button"
                   onClick={() => setShowTimeSlots(!showTimeSlots)}
-                  className="w-full text-left p-4 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-colors"
+                  disabled={!formData.date || !formData.branch}
+                  className="w-full text-left p-4 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {formData.time || "Select time"}
+                  {formData.time ||
+                    (formData.date && formData.branch
+                      ? "Select time"
+                      : "Select date and branch first")}
                 </button>
                 <TimeSlotDropdown
                   show={showTimeSlots}
                   slots={timeSlots}
                   selected={formData.time}
+                  bookedSlots={bookedSlots}
+                  loading={loadingSlots}
+                  formData={formData} // ✅ add this line
                   onSelect={(slot) => {
                     onInputChange("time", slot);
                     setShowTimeSlots(false);
@@ -408,7 +511,7 @@ export default function BookingForm({
                 Additional Notes (Optional)
               </label>
               <textarea
-                value={formData.notes}
+                value={formData.notes || ""}
                 onChange={(e) => onInputChange("notes", e.target.value)}
                 rows="4"
                 className="w-full p-4 border-2 border-gray-200 rounded-xl resize-none focus:border-[#0056A3] focus:outline-none transition-colors"
@@ -461,7 +564,7 @@ export default function BookingForm({
                   </p>
                   <p>
                     <span className="font-semibold">Service:</span>{" "}
-                    {formData.service}
+                    {getServiceName(formData.service)}
                   </p>
                 </div>
               </div>

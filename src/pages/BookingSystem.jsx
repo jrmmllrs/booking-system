@@ -433,6 +433,7 @@ const DentalClinicWebsite = () => {
             onSubmit={handleDashboardBooking}
             onCancel={() => setShowBookingForm(false)}
             loading={loading}
+            db={db} // ADD THIS LINE - Pass the db instance
           />
         ) : (
           <BookingList

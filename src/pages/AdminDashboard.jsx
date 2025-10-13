@@ -166,7 +166,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // Booking Handlers
+  // Booking Handlers - UPDATED to handle cancellation reason
   const updateBookingStatus = async (id, newStatus) => {
     setLoading(true);
     setError("");
@@ -180,6 +180,27 @@ const AdminDashboard = () => {
     } catch (err) {
       console.error("Error updating booking:", err);
       setError("Failed to update booking status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // NEW: Separate handler for cancellation with reason
+  const handleCancelBooking = async (id, cancelReason) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      await updateDoc(doc(db, "bookings", id), {
+        status: "cancelled",
+        cancellationReason: cancelReason,
+        cancelledAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      await loadAllBookings();
+    } catch (err) {
+      console.error("Error cancelling booking:", err);
+      setError("Failed to cancel booking");
     } finally {
       setLoading(false);
     }
@@ -233,13 +254,15 @@ const AdminDashboard = () => {
   // Quick Actions Handlers
   const handleExport = () => {
     const csv =
-      "Name,Email,Phone,Branch,Service,Date,Time,Status,Notes\n" +
+      "Name,Email,Phone,Branch,Service,Date,Time,Status,Notes,Cancellation Reason\n" +
       filteredBookings
         .map(
           (b) =>
             `"${b.name}","${b.email}","${b.phone || ""}","${b.branch || ""}","${
               b.service
-            }","${b.date}","${b.time}","${b.status}","${b.notes || ""}"`
+            }","${b.date}","${b.time}","${b.status}","${b.notes || ""}","${
+              b.cancellationReason || ""
+            }"`
         )
         .join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
@@ -522,7 +545,7 @@ const AdminDashboard = () => {
                 </div>
                 <AdminBookingList
                   bookings={filteredBookings}
-                  onCancel={(id) => updateBookingStatus(id, "cancelled")}
+                  onCancel={handleCancelBooking}
                   onConfirm={(id) => updateBookingStatus(id, "confirmed")}
                   onSetPending={(id) => updateBookingStatus(id, "pending")}
                   onDelete={deleteBooking}
