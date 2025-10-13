@@ -183,41 +183,38 @@ const TimeSlotDropdown = ({
           <span className="text-sm">Loading available slots...</span>
         </div>
       ) : (
-        slots.map((slot, idx) => {
-          const isBooked = bookedSlots.includes(slot);
-          const isPast = isToday && parseTime(slot) < now; // 👈 disable past times today
-          const isDisabled = isBooked || isPast;
+        // ✅ filter out past slots
+        slots
+          .filter((slot) => {
+            const isBooked = bookedSlots.includes(slot);
+            const isToday =
+              formData?.date === new Date().toISOString().split("T")[0];
 
-          return (
+            if (!isToday) return !isBooked; // keep all future-day slots
+            const now = new Date();
+            const [time, period] = slot.split(" ");
+            const [hours, minutes] = time.split(":").map(Number);
+            let h = hours % 12;
+            if (period === "PM") h += 12;
+            const slotTime = new Date();
+            slotTime.setHours(h, minutes || 0, 0, 0);
+
+            return !isBooked && slotTime > now; // ✅ show only upcoming, not past
+          })
+          .map((slot, idx) => (
             <button
               key={idx}
               type="button"
-              onClick={() => !isDisabled && onSelect(slot)}
-              disabled={isDisabled}
+              onClick={() => onSelect(slot)}
               className={`w-full text-left p-3 transition-colors ${
-                isDisabled
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : selected === slot
+                selected === slot
                   ? "bg-[#0056A3]/10 font-semibold text-[#0056A3] hover:bg-[#0056A3]/15"
                   : "hover:bg-[#0056A3]/5"
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className={isDisabled ? "line-through" : ""}>{slot}</span>
-                {isBooked && (
-                  <span className="text-xs text-red-500 font-semibold">
-                    Booked
-                  </span>
-                )}
-                {isPast && !isBooked && (
-                  <span className="text-xs text-gray-500 font-semibold">
-                    Past
-                  </span>
-                )}
-              </div>
+              <span>{slot}</span>
             </button>
-          );
-        })
+          ))
       )}
     </div>
   );
