@@ -1,6 +1,6 @@
 import React from "react";
 import { Calendar, Archive, CheckCircle2, Clock } from "lucide-react";
-import BookingCard from "../cards/BookingCard";
+import BookingCard from "./BookingCard";
 
 const AdminBookingList = ({
   bookings, // This receives the already filtered bookings from parent

@@ -35,9 +35,9 @@ import BookingModal from "../components/landingpage/BookingModal";
 import LoginModal from "../components/login/LoginModal";
 
 // Dashboard Components
-import DashboardHeader from "../components/dashboard/DashboardHeader";
-import BookingForm from "../components/dashboard/booking/BookingForm";
-import BookingList from "../components/dashboard/BookingList";
+import DashboardHeader from "../components/guest/dashboard/DashboardHeader";
+import BookingForm from "../components/guest/booking/BookingForm";
+import BookingList from "../components/guest/dashboard/BookingList";
 import ErrorAlert from "../components/common/ErrorAlert";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 

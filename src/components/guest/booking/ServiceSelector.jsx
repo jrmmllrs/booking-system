@@ -1,5 +1,5 @@
 import { Stethoscope } from "lucide-react";
-import { dentalServices } from "../booking/service";
+import { dentalServices } from "./service";
 
 export default function ServiceSelector({ selected, onChange }) {
   return (

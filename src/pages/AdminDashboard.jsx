@@ -30,13 +30,13 @@ import { ADMIN_EMAILS } from "../constants";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorAlert from "../components/common/ErrorAlert";
 import LoginForm from "../components/login/LoginForm";
-import AdminBookingList from "../components/cards/AdminBookingList";
-import ContactCard from "../components/cards/ContactCard";
-import AnalyticsDashboard from "../components/dashboard/AnalyticsDashboard";
-import SearchFilter from "../components/dashboard/SearchFilter";
-import QuickActions from "../components/dashboard/QuickActions";
-import ActivityTimeline from "../components/dashboard/ActivityTimeline";
-import StatusOverview from "../components/dashboard/StatusOverview";
+import AdminBookingList from "../components/admin/bookings/AdminBookingList";
+import ContactCard from "../components/admin/contacts/ContactCard";
+import AnalyticsDashboard from "../components/admin/overview/AnalyticsDashboard";
+import SearchFilter from "../components/admin/overview/SearchFilter";
+import QuickActions from "../components/admin/overview/QuickActions";
+import ActivityTimeline from "../components/admin/overview/ActivityTimeline";
+import StatusOverview from "../components/admin/overview/StatusOverview";
 
 const AdminDashboard = () => {
   // Auth State
