@@ -1,7 +1,33 @@
-import { useState, useEffect } from "react";
-import { Calendar, Shield, Award, Star, CheckCircle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  Calendar,
+  Shield,
+  Award,
+  Star,
+  CheckCircle,
+  Sparkles,
+} from "lucide-react";
 
-export default function HeroSection() {
+export default function HeroSection({
+  title = "Your smile,",
+  subtitle = "our priority",
+  description = "Experience world-class dental care with our team of expert dentists. Serving Filipino families with compassion and excellence.",
+  primaryAction = "Book Appointment",
+  secondaryAction = "View Services",
+  onPrimaryClick = () => {},
+  onSecondaryClick = () => {},
+  heroImage = "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=800&auto=format&fit=crop",
+  stats = [
+    { value: "15+", label: "Years Serving", icon: Award },
+    { value: "10K+", label: "Happy Patients", icon: Star },
+    { value: "24/7", label: "Emergency Care", icon: Shield },
+  ],
+  features = [
+    "PhilHealth & HMO Accepted",
+    "DOH Licensed Dentists",
+    "Flexible Payment Plans",
+  ],
+}) {
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredStat, setHoveredStat] = useState(null);
 
@@ -9,151 +35,100 @@ export default function HeroSection() {
     setIsVisible(true);
   }, []);
 
-  const stats = [
-    { value: "15+", label: "Years Serving", icon: Award },
-    { value: "10K+", label: "Happy Patients", icon: Star },
-    { value: "24/7", label: "Emergency Care", icon: Shield },
-  ];
-  
-  const features = [
-    "PhilHealth & HMO Accepted",
-    "DOH Licensed Dentists",
-    "Flexible Payment Plans",
-  ];
-
   return (
-    <section className="relative pt-32 pb-20 px-6 overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-white min-h-screen">
-      <style>{`
+    <section className="relative pt-32 pb-20 px-6 overflow-hidden bg-gradient-to-b from-blue-50 to-white">
+      <style jsx>{`
         @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-20px);
+          }
         }
         @keyframes slideInLeft {
-          from { opacity: 0; transform: translateX(-30px); }
-          to { opacity: 1; transform: translateX(0); }
+          from {
+            opacity: 0;
+            transform: translateX(-30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
         }
         @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(30px); }
-          to { opacity: 1; transform: translateX(0); }
+          from {
+            opacity: 0;
+            transform: translateX(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
         }
         @keyframes slideInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
         @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
         }
-        @keyframes gradientShift {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.15; }
-          50% { transform: translate(30px, -30px) rotate(180deg); opacity: 0.25; }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
         }
-        @keyframes patternMove {
-          0% { background-position: 0% 0%; }
-          100% { background-position: 100% 100%; }
+        .animate-slide-in-left {
+          animation: slideInLeft 0.8s ease-out forwards;
         }
-        .animate-float { animation: float 6s ease-in-out infinite; }
-        .animate-slide-in-left { animation: slideInLeft 0.8s ease-out forwards; }
-        .animate-slide-in-right { animation: slideInRight 0.8s ease-out forwards; }
-        .animate-slide-in-up { animation: slideInUp 0.8s ease-out forwards; }
-        .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
-        .animate-scale-in { animation: scaleIn 0.6s ease-out forwards; }
-        .animate-gradient-shift { animation: gradientShift 20s ease-in-out infinite; }
-        .pattern-dots {
-          background-image: radial-gradient(circle, rgba(0, 86, 163, 0.08) 1px, transparent 1px);
-          background-size: 30px 30px;
-          animation: patternMove 60s linear infinite;
+        .animate-slide-in-right {
+          animation: slideInRight 0.8s ease-out forwards;
         }
-        .pattern-grid {
-          background-image: 
-            linear-gradient(rgba(0, 86, 163, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 86, 163, 0.03) 1px, transparent 1px);
-          background-size: 50px 50px;
+        .animate-slide-in-up {
+          animation: slideInUp 0.8s ease-out forwards;
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.8s ease-out forwards;
+        }
+        .animate-scale-in {
+          animation: scaleIn 0.6s ease-out forwards;
         }
       `}</style>
 
-      {/* Multi-layer Background System */}
-      <div className="absolute inset-0 pattern-dots" style={{ zIndex: 1 }}></div>
-      <div className="absolute inset-0 pattern-grid" style={{ zIndex: 2 }}></div>
-      
-      {/* Gradient Orbs */}
+      {/* Animated Background Decoration */}
       <div
-        className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full blur-3xl animate-gradient-shift"
-        style={{ 
-          background: "radial-gradient(circle, rgba(0, 86, 163, 0.15) 0%, transparent 70%)",
-          animationDelay: "0s",
-          zIndex: 3
-        }}
-      />
+        className="absolute top-20 right-0 w-96 h-96 rounded-full blur-3xl opacity-20 -z-10 animate-pulse"
+        style={{ backgroundColor: "#0056A3", animationDuration: "4s" }}
+      ></div>
       <div
-        className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full blur-3xl animate-gradient-shift"
-        style={{ 
-          background: "radial-gradient(circle, rgba(0, 152, 70, 0.12) 0%, transparent 70%)",
-          animationDelay: "7s",
-          zIndex: 3
-        }}
-      />
-      <div
-        className="absolute top-1/2 left-1/2 w-[700px] h-[700px] rounded-full blur-3xl animate-gradient-shift"
-        style={{ 
-          background: "radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)",
-          animationDelay: "3.5s",
-          zIndex: 3,
-          transform: "translate(-50%, -50%)"
-        }}
-      />
-      
-      {/* Floating Shapes */}
-      <div
-        className="absolute top-20 w-32 h-32 rounded-2xl blur-2xl opacity-20 animate-pulse"
-        style={{ 
-          backgroundColor: "#0056A3", 
-          animationDuration: "5s", 
-          animationDelay: "1s",
-          right: "25%",
-          zIndex: 4
-        }}
-      />
-      <div
-        className="absolute bottom-32 w-24 h-24 rounded-full blur-2xl opacity-15 animate-pulse"
-        style={{ 
-          backgroundColor: "#009846", 
-          animationDuration: "6s", 
-          animationDelay: "2s",
-          right: "33%",
-          zIndex: 4
-        }}
-      />
-      <div
-        className="absolute top-1/3 left-20 w-40 h-40 rounded-3xl blur-2xl opacity-10 animate-pulse"
-        style={{ 
-          backgroundColor: "#0056A3", 
-          animationDuration: "7s",
-          zIndex: 4
-        }}
-      />
-      
-      {/* Subtle Mesh Gradient Overlay */}
-      <div 
-        className="absolute inset-0 opacity-40"
-        style={{
-          backgroundImage: `
-            radial-gradient(at 20% 30%, rgba(0, 86, 163, 0.1) 0px, transparent 50%),
-            radial-gradient(at 80% 70%, rgba(0, 152, 70, 0.08) 0px, transparent 50%),
-            radial-gradient(at 50% 50%, rgba(59, 130, 246, 0.06) 0px, transparent 50%)
-          `,
-          zIndex: 5
-        }}
-      />
+        className="absolute bottom-0 left-0 w-80 h-80 rounded-full blur-3xl opacity-15 -z-10 animate-pulse"
+        style={{ backgroundColor: "#009846", animationDuration: "5s" }}
+      ></div>
 
-      <div className="max-w-7xl mx-auto relative" style={{ zIndex: 10 }}>
+      <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left Content */}
-          <div className={isVisible ? "opacity-100" : "opacity-0"}>
+          <div className={`${isVisible ? "opacity-100" : "opacity-0"}`}>
             {/* Trust Badge */}
             <div
               className={`inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full mb-8 border ${
@@ -166,7 +141,10 @@ export default function HeroSection() {
                 animationDelay: "0.1s",
               }}
             >
-              <Star className="w-4 h-4 animate-pulse" style={{ fill: "#0056A3", animationDuration: "2s" }} />
+              <Star
+                className="w-4 h-4 animate-pulse"
+                style={{ fill: "#0056A3", animationDuration: "2s" }}
+              />
               <span>Trusted by 10,000+ Filipino Families</span>
             </div>
 
@@ -177,15 +155,16 @@ export default function HeroSection() {
               }`}
               style={{ animationDelay: "0.2s" }}
             >
-              Your smile,
+              {title}
               <br />
               <span
                 className="bg-clip-text text-transparent"
                 style={{
-                  backgroundImage: "linear-gradient(to right, #0056A3, #009846)",
+                  backgroundImage:
+                    "linear-gradient(to right, #0056A3, #009846)",
                 }}
               >
-                our priority
+                {subtitle}
               </span>
             </h1>
 
@@ -196,7 +175,7 @@ export default function HeroSection() {
               }`}
               style={{ animationDelay: "0.3s" }}
             >
-              Experience world-class dental care with our team of expert dentists. Serving Filipino families with compassion and excellence.
+              {description}
             </p>
 
             {/* Feature Pills */}
@@ -209,7 +188,10 @@ export default function HeroSection() {
                   }`}
                   style={{ animationDelay: `${0.4 + idx * 0.1}s` }}
                 >
-                  <CheckCircle className="w-4 h-4" style={{ color: "#009846" }} />
+                  <CheckCircle
+                    className="w-4 h-4"
+                    style={{ color: "#009846" }}
+                  />
                   <span>{feature}</span>
                 </div>
               ))}
@@ -223,34 +205,38 @@ export default function HeroSection() {
               style={{ animationDelay: "0.7s" }}
             >
               <button
+                onClick={onPrimaryClick}
                 className="group flex items-center justify-center gap-2 text-white px-8 py-4 rounded-xl transition-all duration-300 font-semibold shadow-lg hover:shadow-2xl hover:scale-105 transform"
                 style={{ backgroundColor: "#0056A3" }}
               >
                 <Calendar className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-                <span>Book Appointment</span>
+                <span>{primaryAction}</span>
               </button>
               <button
+                onClick={onSecondaryClick}
                 className="flex items-center justify-center gap-2 bg-white text-gray-900 px-8 py-4 rounded-xl hover:bg-gray-50 hover:scale-105 transition-all duration-300 font-semibold shadow-md border-2 transform"
                 style={{ borderColor: "#0056A3", color: "#0056A3" }}
               >
-                <span>View Services</span>
+                <span>{secondaryAction}</span>
               </button>
             </div>
           </div>
 
           {/* Right Image Section */}
           <div
-            className={`relative ${isVisible ? "animate-slide-in-right" : "opacity-0"}`}
+            className={`relative ${
+              isVisible ? "animate-slide-in-right" : "opacity-0"
+            }`}
             style={{ animationDelay: "0.3s" }}
           >
             {/* Main Image */}
             <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-shadow duration-500 animate-float">
               <img
-                src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=800&auto=format&fit=crop"
+                src={heroImage}
                 alt="Modern dental clinic"
                 className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent"></div>
             </div>
 
             {/* Floating Badge - DOH Certified */}
@@ -263,7 +249,9 @@ export default function HeroSection() {
               <div className="flex items-center gap-2">
                 <Award className="w-5 h-5" style={{ color: "#0056A3" }} />
                 <div>
-                  <p className="text-xs font-bold text-gray-900">DOH Certified</p>
+                  <p className="text-xs font-bold text-gray-900">
+                    DOH Certified
+                  </p>
                   <p className="text-xs text-gray-600">Licensed Clinic</p>
                 </div>
               </div>
@@ -271,26 +259,26 @@ export default function HeroSection() {
 
             {/* Decorative Elements */}
             <div
-              className="absolute -bottom-6 -right-6 w-32 h-32 rounded-3xl opacity-10 blur-xl animate-pulse"
+              className="absolute -bottom-6 -right-6 w-32 h-32 rounded-3xl opacity-10 blur-xl -z-10 animate-pulse"
               style={{
-                background: "linear-gradient(to bottom right, #0056A3, #009846)",
+                background:
+                  "linear-gradient(to bottom right, #0056A3, #009846)",
                 animationDuration: "3s",
-                zIndex: -1
               }}
-            />
+            ></div>
             <div
-              className="absolute -top-6 -left-6 w-24 h-24 rounded-3xl opacity-10 blur-xl animate-pulse"
+              className="absolute -top-6 -left-6 w-24 h-24 rounded-3xl opacity-10 blur-xl -z-10 animate-pulse"
               style={{
-                background: "linear-gradient(to bottom right, #009846, #0056A3)",
+                background:
+                  "linear-gradient(to bottom right, #009846, #0056A3)",
                 animationDuration: "4s",
-                zIndex: -1
               }}
-            />
+            ></div>
           </div>
         </div>
 
         {/* Stats Section */}
-        <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="mt-24 grid grid-cols-3 gap-8">
           {stats.map((stat, idx) => {
             const Icon = stat.icon;
             return (
